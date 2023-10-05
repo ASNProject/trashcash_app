@@ -1,10 +1,11 @@
-
 import 'package:go_router/go_router.dart';
+import 'package:injectable/injectable.dart';
 import 'package:trashcash_app/core/router/app_route_constans.dart';
 import 'package:trashcash_app/screens/dashboard/admin/dashboard_admin_screen.dart';
 import 'package:trashcash_app/screens/login/login_screen.dart';
 import 'package:trashcash_app/screens/register_user/register_user_screen.dart';
 
+@injectable
 class AppRouter {
   static GoRouter returnRouter() {
     GoRouter router = GoRouter(
@@ -22,7 +23,12 @@ class AppRouter {
         GoRoute(
           name: AppRouteConstants.dashboardAdminRouteName,
           path: AppRouteConstants.dashboardAdminRouteName,
-          builder: (context, state) => const DashboardAdminScreen(),
+          builder: (context, state) {
+            final iduser = state.queryParams['idUser'] as String ;
+            return  DashboardAdminScreen(
+              userId: iduser,
+            );
+          }
         )
       ],
     );

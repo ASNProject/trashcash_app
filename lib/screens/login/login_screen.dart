@@ -25,17 +25,19 @@ class LoginScreenContent extends StatefulWidget {
 }
 
 class _LoginScreenContentState extends State<LoginScreenContent> {
-  late Map dataFromApi;
+  Map? dataFromApi;
+
+  String? userId;
+  bool dataFetched = false;
 
   TextEditingController nasabahIdTextController = TextEditingController();
   TextEditingController passwordTextController = TextEditingController();
 
   Future<void> fetchData(String idUser) async {
-    // Menggunakan fungsi fetchData dari ApiService
     final result = await BaseRepository.fetchData(idUser);
 
     setState(() {
-      dataFromApi = result!;
+      dataFromApi = result;
     });
   }
 
@@ -43,10 +45,25 @@ class _LoginScreenContentState extends State<LoginScreenContent> {
   void initState() {
     super.initState();
     // fetchData(nasabahIdTextController.text);
+
   }
 
   @override
   Widget build(BuildContext context) {
+
+    if (userId != null && !dataFetched){
+      fetchData(nasabahIdTextController.text);
+      if (dataFromApi != null){
+        setState(() {
+          dataFetched = true;
+        });
+      } else {
+        setState(() {
+          dataFetched = false;
+        });
+      }
+    }
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Padding(
@@ -128,6 +145,7 @@ class _LoginScreenContentState extends State<LoginScreenContent> {
           onChanged: (value) {
             setState(() {
               nasabahIdTextController.text = value;
+              userId = value;
             });
           },
         ),
@@ -200,51 +218,71 @@ class _LoginScreenContentState extends State<LoginScreenContent> {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8))),
             onPressed: () {
-              fetchData(nasabahIdTextController.text);
-              String jsonString = json.encode(dataFromApi);
-              Map<String, dynamic> jsonData = json.decode(jsonString);
+              if (userId != null) {
+                String jsonString = json.encode(dataFromApi);
+                Map<String, dynamic>? jsonData;
 
-              List<dynamic> dataList = jsonData['data'];
+                if (jsonString.isNotEmpty) {
+                  jsonData = json.decode(jsonString);
+                }
 
-              if (dataList.isNotEmpty) {
-                Map<String, dynamic> userData = dataList[0];
+                if (jsonData != null) {
+                  List<dynamic>? dataList = jsonData['data'];
 
-                String password = userData['password'];
-                String idUser = userData['id_user'];
-                int status = userData['id_status'];
+                  if (dataList != null && dataList.isNotEmpty) {
+                    Map<String, dynamic> userData = dataList[0];
 
-                if (idUser == nasabahIdTextController.text &&
-                    password == passwordTextController.text) {
-                  if (status == 1) {
-                    GoRouter.of(context)
-                        .pushNamed(AppRouteConstants.dashboardAdminRouteName);
-                  }
-                  else {
+                    String password = userData['password'] ?? "";
+                    String idUser = userData['id_user'] ?? "";
+                    int status = userData['id_status'] ?? 0;
+
+                    if (idUser == nasabahIdTextController.text &&
+                        password == passwordTextController.text) {
+                      if (status == 1) {
+                        GoRouter.of(context).pushNamed(
+                          AppRouteConstants.dashboardAdminRouteName,
+                          queryParams: {'idUser': idUser},
+                        );
+                        setState(() {
+                          nasabahIdTextController.clear();
+                          passwordTextController.clear();
+                        });
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            duration: Duration(seconds: 3),
+                            content: Text('Anda adalah customer'),
+                          ),
+                        );
+                      }
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          duration: Duration(seconds: 3),
+                          content: Text(
+                            'Gagal login, Id Nasabah atau password salah. Silahkan coba lagi!',
+                          ),
+                        ),
+                      );
+                    }
+                  } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        duration:  Duration(seconds: 3),
+                        duration: Duration(seconds: 3),
                         content: Text(
-                          'Anda adalah customer',
+                          'Error decoding JSON data',
                         ),
                       ),
                     );
                   }
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                   const SnackBar(
-                     duration:  Duration(seconds: 3),
-                      content: Text(
-                        'Gagal login, Id Nasabah atau password salah. Silahkan coba lagi!',
-                      ),
-                    ),
-                  );
                 }
+
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    duration:  Duration(seconds: 3),
+                    duration: Duration(seconds: 3),
                     content: Text(
-                      'Data kosong',
+                      'Masukkan ID Nasabah dan Password',
                     ),
                   ),
                 );

@@ -1,24 +1,111 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
+import 'package:trashcash_app/core/repository/base_repository.dart';
+import 'package:trashcash_app/core/router/app_route_constans.dart';
 
 class DashboardAdminScreen extends StatefulWidget {
-  const DashboardAdminScreen({super.key});
+  final String? userId;
+
+  const DashboardAdminScreen({super.key, this.userId});
 
   @override
   State<DashboardAdminScreen> createState() => _DashboardAdminScreenState();
 }
 
 class _DashboardAdminScreenState extends State<DashboardAdminScreen> {
+  DateTime now = DateTime.now();
+  String formattedDate = '';
+
+  Map? debitFromApi;
+  Map? creditFromApi;
+
+  Future<void> fetchDebit() async {
+    final result = await BaseRepository.fetchDebit();
+
+    setState(() {
+      debitFromApi = result;
+    });
+  }
+
+  Future<void> fetchCredit() async {
+    final result = await BaseRepository.fetchCredit();
+
+    setState(() {
+      creditFromApi = result;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    formattedDate = DateFormat('dd MMMM yyyy').format(now);
+    fetchDebit();
+    fetchCredit();
+  }
+
   @override
   Widget build(BuildContext context) {
+    int totalDebit = 0;
+    int totalCredit = 0;
+    //--------------------Debit-------------------
+    String jsonStringDebit = json.encode(debitFromApi);
+    Map<String, dynamic>? jsonDebit;
+
+    if (jsonStringDebit.isNotEmpty) {
+      jsonDebit = json.decode(jsonStringDebit);
+    }
+
+    if (jsonDebit != null) {
+      List<dynamic>? dataListDebit = jsonDebit['data'];
+
+      if (dataListDebit != null && dataListDebit.isNotEmpty) {
+        for (var item in dataListDebit) {
+          if (item.containsKey('debit') && item['debit'] != null) {
+            totalDebit += (item['debit'] as num).toInt();
+          }
+        }
+      }
+    }
+    //--------------------Credit-------------------
+    String jsonStringCredit = json.encode(creditFromApi);
+    Map<String, dynamic>? jsonCredit;
+
+    if (jsonStringCredit.isNotEmpty) {
+      jsonCredit = json.decode(jsonStringCredit);
+    }
+
+    if (jsonCredit != null) {
+      List<dynamic>? dataListCredit = jsonCredit['data'];
+
+      if (dataListCredit != null && dataListCredit.isNotEmpty) {
+        for (var item in dataListCredit) {
+          if (item.containsKey('credit') && item['credit'] != null) {
+            totalCredit += (item['credit'] as num).toInt();
+          }
+        }
+      }
+    }
+
+    int totalSaldo = totalCredit - totalDebit;
+
+    String formattedString = totalSaldo.toString().replaceAllMapped(
+          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+          (Match match) => '${match[1]}.',
+        );
+
     return Scaffold(
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 16,
+            padding: const EdgeInsets.only(
+              top: 32,
+              left: 16,
+              bottom: 16,
             ),
             child: Text(
               'Dashboard',
@@ -28,91 +115,285 @@ class _DashboardAdminScreenState extends State<DashboardAdminScreen> {
               ),
             ),
           ),
-          Container(
-            height: 150,
-            width: double.infinity,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Color(0xFF25A981),
-                  Color(0xFF9CB5AD),
-                ],
-              ),
-              boxShadow: <BoxShadow>[
-                BoxShadow(
-                  color: Colors.black54,
-                  blurRadius: 8.0,
-                  offset: Offset(0.0, 0.08)
-                )
-              ]
+          _buildCardDashboard(formattedString),
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              vertical: 16,
+              horizontal: 16,
             ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 16,
+            child: Text(
+              'Menu',
+              style: GoogleFonts.poppins(
+                textStyle:
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
-              child: Stack(
+            ),
+          ),
+          _buildMenu(),
+        ],
+      ),
+    );
+  }
+
+  _buildMenu() {
+    return Expanded(
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 16.0),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.wallet_membership,
-                            color: Colors.white,
-                          ),
-                          const SizedBox(
-                            width: 4,
-                          ),
-                          Text(
-                            'Saldo Kas Bank Sampah',
-                            style: GoogleFonts.poppins(
-                              textStyle: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
+                  InkWell(
+                    child: Container(
+                      width: 150,
+                      height: 150,
+                      decoration: BoxDecoration(
+                          border: Border.all(color: Colors.black12),
+                          borderRadius: BorderRadius.circular(8)),
+                      child: Center(
+                        child: Column(
+                          children: [
+                            Image.asset(
+                              'assets/images/pembelian.png',
+                              width: 110,
+                              height: 110,
                             ),
-                          )
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 8,
-                      ),
-                      Text(
-                        'Rp. 1.000.000',
-                        style: GoogleFonts.poppins(
-                          textStyle: const TextStyle(
-                            fontSize: 32,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
+                            Text(
+                              'Kredit',
+                              style: GoogleFonts.poppins(
+                                textStyle: const TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.w400),
+                              ),
+                            )
+                          ],
                         ),
                       ),
-                    ],
+                    ),
                   ),
-                  Positioned(
-                    bottom: 0,
-                    left: 0,
-                    child: Text(
-                      '23 September 2023',
-                      style: GoogleFonts.poppins(
-                        textStyle: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
+                  InkWell(
+                    child: Container(
+                      width: 150,
+                      height: 150,
+                      decoration: BoxDecoration(
+                          border: Border.all(color: Colors.black12),
+                          borderRadius: BorderRadius.circular(8)),
+                      child: Center(
+                        child: Column(
+                          children: [
+                            Image.asset(
+                              'assets/images/penarikan.png',
+                              width: 110,
+                              height: 110,
+                            ),
+                            Text(
+                              'Debit',
+                              style: GoogleFonts.poppins(
+                                textStyle: const TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.w400),
+                              ),
+                            )
+                          ],
                         ),
                       ),
                     ),
                   )
                 ],
               ),
+              const SizedBox(
+                height: 32,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  InkWell(
+                    onTap: () {
+                      GoRouter.of(context)
+                          .pushNamed(AppRouteConstants.registerUserRouteName);
+                    },
+                    child: Container(
+                      width: 150,
+                      height: 150,
+                      decoration: BoxDecoration(
+                          border: Border.all(color: Colors.black12),
+                          borderRadius: BorderRadius.circular(8)),
+                      child: Center(
+                        child: Column(
+                          children: [
+                            Image.asset(
+                              'assets/images/nasabah.png',
+                              width: 110,
+                              height: 110,
+                            ),
+                            Text(
+                              'Nasabah',
+                              style: GoogleFonts.poppins(
+                                textStyle: const TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.w400),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () {
+                      GoRouter.of(context)
+                          .pushNamed(AppRouteConstants.registerUserRouteName);
+                    },
+                    child: Container(
+                      width: 150,
+                      height: 150,
+                      decoration: BoxDecoration(
+                          border: Border.all(color: Colors.black12),
+                          borderRadius: BorderRadius.circular(8)),
+                      child: Center(
+                        child: Column(
+                          children: [
+                            Image.asset(
+                              'assets/images/jenis.png',
+                              width: 110,
+                              height: 110,
+                            ),
+                            Text(
+                              'Jenis Sampah',
+                              style: GoogleFonts.poppins(
+                                textStyle: const TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.w400),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  _buildCardDashboard(String formattedString) {
+    return Container(
+      height: 150,
+      width: double.infinity,
+      decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF25A981),
+              Color(0xFF9CB5AD),
+            ],
+          ),
+          boxShadow: <BoxShadow>[
+            BoxShadow(
+                color: Colors.black54,
+                blurRadius: 8.0,
+                offset: Offset(0.0, 0.08))
+          ]),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
+        child: Stack(
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.wallet_membership,
+                      color: Colors.white,
+                    ),
+                    const SizedBox(
+                      width: 4,
+                    ),
+                    Text(
+                      'Saldo Kas Bank Sampah',
+                      style: GoogleFonts.poppins(
+                        textStyle: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+                const SizedBox(
+                  height: 8,
+                ),
+                Text(
+                  'Rp. $formattedString',
+                  style: GoogleFonts.poppins(
+                    textStyle: const TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
             ),
-          )
-        ],
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    formattedDate,
+                    style: GoogleFonts.poppins(
+                      textStyle: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                          color: Colors.white,
+                          fontStyle: FontStyle.italic),
+                    ),
+                  ),
+                  InkWell(
+                    onTap: (){
+                      setState(() {
+                        fetchDebit();
+                        fetchCredit();
+                      });
+                    },
+                    child: Row(
+                      children: [
+                        Text(
+                          'Update',
+                          style: GoogleFonts.poppins(
+                            textStyle: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 4,
+                        ),
+                        const Icon(
+                          Icons.refresh,
+                          color: Colors.white,
+                        )
+                      ],
+                    ),
+                  )
+                ],
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
