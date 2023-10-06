@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:trashcash_app/core/repository/base_repository.dart';
+import 'package:trashcash_app/core/router/app_route_constans.dart';
 
 class RegisterUserScreen extends StatefulWidget {
   const RegisterUserScreen({super.key});
@@ -104,14 +106,31 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
                     const SizedBox(
                       height: 16,
                     ),
-                    Text(
-                      'Data Diri',
-                      style: GoogleFonts.poppins(
-                        textStyle: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.black87),
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Data Diri',
+                          style: GoogleFonts.poppins(
+                            textStyle: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.black87),
+                          ),
+                        ),
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            GoRouter.of(context).pushNamed(
+                                AppRouteConstants.listCustomerRouteName);
+                          },
+                          icon: const Icon(Icons.list),
+                          label: const Text('Lihat Data'),
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                                const Color(0xFF25A981)),
+                          ),
+                        )
+                      ],
                     ),
                     const SizedBox(
                       height: 8,
@@ -132,26 +151,6 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
                     const SizedBox(
                       height: 24,
                     ),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 45,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF25A981),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8))),
-                        onPressed: () => addCustomer(context),
-                        child: Text(
-                          'Simpan',
-                          style: GoogleFonts.poppins(
-                            textStyle: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white),
-                          ),
-                        ),
-                      ),
-                    ),
                   ],
                 ),
               ),
@@ -161,16 +160,19 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
             bottom: 0,
             left: 0,
             right: 0,
-            child: GestureDetector(
-              child: Container(
-                height: 45,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: SizedBox(
                 width: double.infinity,
-                decoration: const BoxDecoration(
-                  color: Color(0xFF25A981),
-                ),
-                child: Center(
+                height: 45,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF25A981),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8))),
+                  onPressed: () => addCustomer(context),
                   child: Text(
-                    'List Nasabah',
+                    'Simpan',
                     style: GoogleFonts.poppins(
                       textStyle: const TextStyle(
                           fontSize: 14,
@@ -181,7 +183,7 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
                 ),
               ),
             ),
-          ),
+          )
         ],
       ),
     );
@@ -427,10 +429,10 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
           '** Pilih ID Status: 1: admin, 2: customer',
           style: GoogleFonts.poppins(
             textStyle: const TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w400,
-                color: Colors.black87,
-                fontStyle: FontStyle.italic,
+              fontSize: 10,
+              fontWeight: FontWeight.w400,
+              color: Colors.black87,
+              fontStyle: FontStyle.italic,
             ),
           ),
         )

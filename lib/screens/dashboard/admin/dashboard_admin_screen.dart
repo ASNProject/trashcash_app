@@ -146,6 +146,10 @@ class _DashboardAdminScreenState extends State<DashboardAdminScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   InkWell(
+                    onTap: () {
+                      GoRouter.of(context)
+                          .pushNamed(AppRouteConstants.creditRouteName);
+                    },
                     child: Container(
                       width: 150,
                       height: 150,
@@ -156,7 +160,7 @@ class _DashboardAdminScreenState extends State<DashboardAdminScreen> {
                         child: Column(
                           children: [
                             Image.asset(
-                              'assets/images/pembelian.png',
+                              'assets/images/penarikan.png',
                               width: 110,
                               height: 110,
                             ),
@@ -173,6 +177,10 @@ class _DashboardAdminScreenState extends State<DashboardAdminScreen> {
                     ),
                   ),
                   InkWell(
+                    onTap: () {
+                      GoRouter.of(context)
+                          .pushNamed(AppRouteConstants.debitRouteName);
+                    },
                     child: Container(
                       width: 150,
                       height: 150,
@@ -183,7 +191,7 @@ class _DashboardAdminScreenState extends State<DashboardAdminScreen> {
                         child: Column(
                           children: [
                             Image.asset(
-                              'assets/images/penarikan.png',
+                              'assets/images/pembelian.png',
                               width: 110,
                               height: 110,
                             ),
@@ -241,7 +249,7 @@ class _DashboardAdminScreenState extends State<DashboardAdminScreen> {
                   InkWell(
                     onTap: () {
                       GoRouter.of(context)
-                          .pushNamed(AppRouteConstants.registerUserRouteName);
+                          .pushNamed(AppRouteConstants.wasteTypeRouteName);
                     },
                     child: Container(
                       width: 150,
@@ -361,7 +369,7 @@ class _DashboardAdminScreenState extends State<DashboardAdminScreen> {
                     ),
                   ),
                   InkWell(
-                    onTap: (){
+                    onTap: () {
                       setState(() {
                         fetchDebit();
                         fetchCredit();
@@ -369,6 +377,14 @@ class _DashboardAdminScreenState extends State<DashboardAdminScreen> {
                     },
                     child: Row(
                       children: [
+                        const Icon(
+                          Icons.refresh,
+                          color: Colors.white,
+                          size: 16,
+                        ),
+                        const SizedBox(
+                          width: 4,
+                        ),
                         Text(
                           'Update',
                           style: GoogleFonts.poppins(
@@ -379,13 +395,6 @@ class _DashboardAdminScreenState extends State<DashboardAdminScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(
-                          width: 4,
-                        ),
-                        const Icon(
-                          Icons.refresh,
-                          color: Colors.white,
-                        )
                       ],
                     ),
                   )

@@ -51,6 +51,8 @@ dependencies:
   logger: ^2.0.2+1
   injectable: ^2.3.0
   intl: ^0.18.1
+  csv: ^5.0.2
+  path_provider: ^2.1.1
 
 
 dev_dependencies:

@@ -45,7 +45,11 @@ class _LoginScreenContentState extends State<LoginScreenContent> {
   void initState() {
     super.initState();
     // fetchData(nasabahIdTextController.text);
-
+    nasabahIdTextController.addListener(() {
+      setState(() {
+        dataFetched = false; // Inisialisasi ulang dataFetched saat ID dihapus
+      });
+    });
   }
 
   @override
@@ -63,7 +67,7 @@ class _LoginScreenContentState extends State<LoginScreenContent> {
         });
       }
     }
-
+  print(dataFromApi);
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Padding(
@@ -218,6 +222,9 @@ class _LoginScreenContentState extends State<LoginScreenContent> {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8))),
             onPressed: () {
+              setState(() {
+                dataFetched = false;
+              });
               if (userId != null) {
                 String jsonString = json.encode(dataFromApi);
                 Map<String, dynamic>? jsonData;
@@ -246,6 +253,8 @@ class _LoginScreenContentState extends State<LoginScreenContent> {
                         setState(() {
                           nasabahIdTextController.clear();
                           passwordTextController.clear();
+                          dataFromApi = null;
+
                         });
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -254,6 +263,11 @@ class _LoginScreenContentState extends State<LoginScreenContent> {
                             content: Text('Anda adalah customer'),
                           ),
                         );
+                        setState(() {
+                          nasabahIdTextController.clear();
+                          passwordTextController.clear();
+                          dataFromApi = null;
+                        });
                       }
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -263,7 +277,14 @@ class _LoginScreenContentState extends State<LoginScreenContent> {
                             'Gagal login, Id Nasabah atau password salah. Silahkan coba lagi!',
                           ),
                         ),
+
                       );
+                      setState(() {
+                        nasabahIdTextController.clear();
+                        passwordTextController.clear();
+                        dataFromApi = null;
+
+                      });
                     }
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -287,45 +308,6 @@ class _LoginScreenContentState extends State<LoginScreenContent> {
                   ),
                 );
               }
-              // fetchData(nasabahIdTextController.text).then((apiResponse) {
-              //   if (dataFromApi != null) {
-              //     Map<String, dynamic> jsonResponse = json.decode(dataFromApi);
-              //
-              //     if (jsonResponse.containsKey('data')) {
-              //       String password = jsonResponse['data'][0]['password'];
-              //
-              //       if (password == passwordTextController.text) {
-              //         // Password sesuai, lakukan tindakan selanjutnya
-              //         // Contoh: Navigasi ke layar berikutnya
-              //       } else {
-              //         ScaffoldMessenger.of(context).showSnackBar(
-              //           const SnackBar(
-              //             duration: Duration(seconds: 3),
-              //             content: Text(
-              //                 'ID Nasabah atau Password tidak sesuai, silakan coba lagi'),
-              //           ),
-              //         );
-              //       }
-              //     } else {
-              //       ScaffoldMessenger.of(context).showSnackBar(
-              //         const SnackBar(
-              //           duration: Duration(seconds: 3),
-              //           content: Text(
-              //               'Data dari API tidak sesuai, silakan coba lagi'),
-              //         ),
-              //       );
-              //     }
-              //   } else {
-              //     // Handle the case where apiResponse is null (e.g., an error occurred)
-              //     ScaffoldMessenger.of(context).showSnackBar(
-              //       const SnackBar(
-              //         duration: Duration(seconds: 3),
-              //         content: Text(
-              //             'An error occurred while fetching data from the API'),
-              //       ),
-              //     );
-              //   }
-              // });
             },
             child: Text(
               'Masuk',
