@@ -1,8 +1,18 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:trashcash_app/core/repository/base_repository.dart';
+import 'package:trashcash_app/core/router/app_route_constans.dart';
 
 class CreditScreen extends StatefulWidget {
-  const CreditScreen({super.key});
+  final String idUser;
+
+  const CreditScreen({
+    super.key,
+    required this.idUser,
+  });
 
   @override
   State<CreditScreen> createState() => _CreditScreenState();
@@ -12,9 +22,222 @@ class _CreditScreenState extends State<CreditScreen> {
   TextEditingController idUserController = TextEditingController();
   TextEditingController typeController = TextEditingController();
 
+  Map? customerFromApi;
+  Map? loadFromApi;
+  Map? typeWasteFromApi;
+  Map? typeWasteIdFromApi;
+  Map? creditFromApi;
+
+  String ids = '';
+  String? loadId;
+  int loadValue = 0;
+
+  bool dataFetched = false;
+
+  int selectedTypeId = 1;
+  int priceType = 0;
+  int? total;
+
+  List<dynamic> typeData = [];
+
+  Future<void> fetchCustomer() async {
+    final result = await BaseRepository.fetchData(widget.idUser);
+
+    setState(() {
+      customerFromApi = result;
+    });
+  }
+
+  Future<void> fetchTypeWaste() async {
+    final result = await BaseRepository.fetchDataTypeWasteAll();
+
+    setState(() {
+      typeWasteFromApi = result;
+      dataFetched = true;
+    });
+  }
+
+  Future<void> fetchTypeWasteId(String id) async {
+    final result = await BaseRepository.fetchDataTypeWasteId(id);
+
+    setState(() {
+      typeWasteIdFromApi = result;
+      dataFetched = true;
+    });
+  }
+
+  Future<void> fetchLoad() async {
+    final result = await BaseRepository.fetchLoadId(loadId!);
+    setState(() {
+      loadFromApi = result;
+    });
+  }
+
+  Future<void> fetchCredit() async {
+    final result = await BaseRepository.fetchCredit();
+
+    setState(() {
+      creditFromApi = result;
+    });
+  }
+
+  Future<void> addCredit(BuildContext context) async {
+    final idUser = idUserController.text;
+    final idType = selectedTypeId;
+    final weight = loadValue;
+    final totalPrice = total;
+
+    final success = await BaseRepository.addCredit(
+      userId: idUser,
+      typeId: idType.toString(),
+      weight: weight.toString(),
+      credit: totalPrice.toString(),
+    );
+
+    if (success == false) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Data kedit berhasil disimpan'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                idUserController.clear();
+                ids = '';
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+    } else {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Gagal'),
+            content:
+                const Text('Terjadi kesalahan saat menambahkan data kredit.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchCustomer();
+    fetchTypeWaste();
+  }
+
   @override
   Widget build(BuildContext context) {
+    ///-------------User-----------------
+    if (widget.idUser.isNotEmpty) {
+      String jsonString = json.encode(customerFromApi);
+      Map<String, dynamic>? jsonData;
+
+      if (jsonString.isNotEmpty) {
+        jsonData = json.decode(jsonString);
+      }
+
+      if (jsonData != null) {
+        List<dynamic>? dataList = jsonData['data'];
+
+        if (dataList != null && dataList.isNotEmpty) {
+          Map<String, dynamic> userData = dataList[0];
+
+          String code = userData['id_load'] ?? '';
+
+          loadId = code;
+        }
+      }
+    }
+
+    ///----------------Load-----------------
+    if (loadId != null) {
+      fetchLoad();
+      String jsonString = json.encode(loadFromApi);
+      Map<String, dynamic>? jsonData;
+
+      if (jsonString.isNotEmpty) {
+        jsonData = json.decode(jsonString);
+      }
+
+      if (jsonData != null) {
+        List<dynamic>? dataList = jsonData['data'];
+
+        if (dataList != null && dataList.isNotEmpty) {
+          Map<String, dynamic> userData = dataList.last;
+
+          int value = int.tryParse(userData['value'].toString()) ?? 0;
+
+          loadValue = value;
+        }
+      }
+    }
+
+    ///-------Load Type-Waste------------------------
+    if (loadId != null) {
+      String jsonString = json.encode(typeWasteFromApi);
+      Map<String, dynamic>? jsonData;
+
+      if (jsonString.isNotEmpty) {
+        jsonData = json.decode(jsonString);
+      }
+
+      if (jsonData != null) {
+        List<dynamic>? dataList = jsonData['data'];
+        setState(() {
+          typeData = dataList!;
+        });
+        if (dataList != null && dataList.isNotEmpty) {
+          Map<String, dynamic> userData = dataList[0];
+
+          // int value = userData['value'] ?? 0;
+          //
+          // priceType = value;
+        }
+      }
+    }
+
+    if (loadId != null) {
+      fetchTypeWasteId(selectedTypeId.toString());
+      String jsonString = json.encode(typeWasteIdFromApi);
+      Map<String, dynamic>? jsonData;
+
+      if (jsonString.isNotEmpty) {
+        jsonData = json.decode(jsonString);
+      }
+
+      if (jsonData != null) {
+        List<dynamic>? dataList = jsonData['data'];
+
+        if (dataList != null && dataList.isNotEmpty) {
+          Map<String, dynamic> userData = dataList[0];
+
+          int value = userData['price'];
+
+          priceType = value;
+        }
+      }
+    }
+
+    ///------------Calculate Total--------------------
+    total = loadValue * priceType;
+
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: 16.0,
@@ -25,12 +248,34 @@ class _CreditScreenState extends State<CreditScreen> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Kredit',
-                  style: GoogleFonts.poppins(
-                    textStyle: const TextStyle(
-                        fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Kredit',
+                      style: GoogleFonts.poppins(
+                        textStyle: const TextStyle(
+                            fontSize: 24, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    Container(
+                      height: 30,
+                      width: 30,
+                      decoration: const BoxDecoration(
+                          color: Colors.teal, shape: BoxShape.circle),
+                      child: Center(
+                        child: Text(
+                          loadId ?? 'C',
+                          style: GoogleFonts.poppins(
+                            textStyle: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
                 ),
                 const SizedBox(
                   height: 16,
@@ -50,7 +295,11 @@ class _CreditScreenState extends State<CreditScreen> {
                       ),
                     ),
                     ElevatedButton.icon(
-                      onPressed: () {},
+                      onPressed: () {
+                        GoRouter.of(context).pushNamed(
+                          AppRouteConstants.listCreditRouteName,
+                        );
+                      },
                       icon: const Icon(Icons.list),
                       label: const Text('Lihat Data'),
                       style: ButtonStyle(
@@ -78,7 +327,7 @@ class _CreditScreenState extends State<CreditScreen> {
                       backgroundColor: const Color(0xFF25A981),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8))),
-                  onPressed: () {},
+                  onPressed: ids.isNotEmpty ? () => addCredit(context) : null,
                   child: Text(
                     'Simpan',
                     style: GoogleFonts.poppins(
@@ -153,7 +402,7 @@ class _CreditScreenState extends State<CreditScreen> {
                 ),
                 Center(
                   child: Text(
-                    '10 Kg',
+                    loadValue != null ? '${loadValue.toString()} Kg' : '0 Kg',
                     style: GoogleFonts.poppins(
                       textStyle: const TextStyle(
                         fontSize: 32,
@@ -225,6 +474,11 @@ class _CreditScreenState extends State<CreditScreen> {
             color: Colors.black87,
             fontSize: 14,
           ),
+          onChanged: (value) {
+            setState(() {
+              ids = value;
+            });
+          },
         ),
         const SizedBox(
           height: 8,
@@ -241,28 +495,32 @@ class _CreditScreenState extends State<CreditScreen> {
         const SizedBox(
           height: 4,
         ),
-        TextFormField(
-          controller: typeController,
-          decoration: InputDecoration(
-              hintText: 'Masukkan Jenis Sampah',
-              labelStyle: const TextStyle(
-                color: Colors.black87,
-                fontSize: 14,
+        Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+              border: Border.all(
+                color: Colors.grey,
               ),
-              border: InputBorder.none,
-              enabledBorder: OutlineInputBorder(
-                borderSide: const BorderSide(color: Colors.grey),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderSide: const BorderSide(color: Colors.blue),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              contentPadding:
-                  const EdgeInsets.symmetric(vertical: 8, horizontal: 8)),
-          style: const TextStyle(
-            color: Colors.black87,
-            fontSize: 14,
+              borderRadius: BorderRadius.circular(
+                8,
+              )),
+          child: Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: DropdownButton<int>(
+              isExpanded: true,
+              value: selectedTypeId,
+              items: typeData.map((item) {
+                return DropdownMenuItem<int>(
+                  value: item['id_type'],
+                  child: Text(item['type']),
+                );
+              }).toList(),
+              onChanged: (value) {
+                setState(() {
+                  selectedTypeId = value!;
+                });
+              },
+            ),
           ),
         ),
         const SizedBox(
@@ -293,7 +551,7 @@ class _CreditScreenState extends State<CreditScreen> {
               ),
             ),
             Text(
-              'Rp. 100.000',
+              '$total',
               style: GoogleFonts.poppins(
                 textStyle:
                     const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),

@@ -14,6 +14,10 @@ class _WasteTypeScreenState extends State<WasteTypeScreen> {
   TextEditingController typeController = TextEditingController();
   TextEditingController priceController = TextEditingController();
 
+  String idTypes = '';
+  String types = '';
+  String prices = '';
+
   Future<void> addWasteType(BuildContext context) async {
     final idType = idTypeController.text;
     final type = typeController.text;
@@ -127,7 +131,11 @@ class _WasteTypeScreenState extends State<WasteTypeScreen> {
                             backgroundColor: const Color(0xFF25A981),
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8))),
-                        onPressed: () => addWasteType(context),
+                        onPressed: idTypes.isNotEmpty &&
+                                types.isNotEmpty &&
+                                prices.isNotEmpty
+                            ? () => addWasteType(context)
+                            : null,
                         child: Text(
                           'Simpan',
                           style: GoogleFonts.poppins(
@@ -188,6 +196,11 @@ class _WasteTypeScreenState extends State<WasteTypeScreen> {
             color: Colors.black87,
             fontSize: 14,
           ),
+          onChanged: (value) {
+            setState(() {
+              idTypes = value;
+            });
+          },
         ),
         const SizedBox(
           height: 8,
@@ -227,6 +240,11 @@ class _WasteTypeScreenState extends State<WasteTypeScreen> {
             color: Colors.black87,
             fontSize: 14,
           ),
+          onChanged: (value) {
+            setState(() {
+              types = value;
+            });
+          },
         ),
         const SizedBox(
           height: 8,
@@ -266,6 +284,11 @@ class _WasteTypeScreenState extends State<WasteTypeScreen> {
             color: Colors.black87,
             fontSize: 14,
           ),
+          onChanged: (value) {
+            setState(() {
+              prices = value;
+            });
+          },
         ),
         Text(
           '** Harga dibulatkan dalam satuan Kilogram (Kg)',

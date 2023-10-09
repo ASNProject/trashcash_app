@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:trashcash_app/core/repository/base_repository.dart';
+import 'package:trashcash_app/core/router/app_route_constans.dart';
 
 class DebitScreen extends StatefulWidget {
   const DebitScreen({super.key});
@@ -13,9 +16,68 @@ class _DebitScreenState extends State<DebitScreen> {
   TextEditingController nominalController = TextEditingController();
   TextEditingController statusDebitController = TextEditingController();
 
+  String ids = '';
+  String nominals = '';
+  String statuss = '';
+
+  Future<void> addDebit(BuildContext context) async {
+    final idUser = idUserController.text;
+    final nominal = nominalController.text;
+    final status = statusDebitController.text;
+
+    final success = await BaseRepository.addDebit(
+      userId: idUser,
+      debit: nominal,
+      status: status,
+    );
+
+    if (success == false) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Data debit berhasil disimpan'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                idUserController.clear();
+                nominalController.clear();
+                statusDebitController.clear();
+                ids = '';
+                nominals = '';
+                statuss = '';
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+    } else {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Gagal'),
+            content:
+                const Text('Terjadi kesalahan saat menambahkan data debit.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: 16.0,
@@ -47,7 +109,9 @@ class _DebitScreenState extends State<DebitScreen> {
                       ),
                     ),
                     ElevatedButton.icon(
-                      onPressed: () {},
+                      onPressed: () {
+                        GoRouter.of(context).pushNamed(AppRouteConstants.listDebitRouteName);
+                      },
                       icon: const Icon(Icons.list),
                       label: const Text('Lihat Data'),
                       style: ButtonStyle(
@@ -75,7 +139,11 @@ class _DebitScreenState extends State<DebitScreen> {
                       backgroundColor: const Color(0xFF25A981),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8))),
-                  onPressed: () {},
+                  onPressed: ids.isNotEmpty &&
+                          nominals.isNotEmpty &&
+                          statuss.isNotEmpty
+                      ? () => addDebit(context)
+                      : null,
                   child: Text(
                     'Simpan',
                     style: GoogleFonts.poppins(
@@ -133,6 +201,11 @@ class _DebitScreenState extends State<DebitScreen> {
             color: Colors.black87,
             fontSize: 14,
           ),
+          onChanged: (value) {
+            setState(() {
+              ids = value;
+            });
+          },
         ),
         const SizedBox(
           height: 8,
@@ -172,6 +245,11 @@ class _DebitScreenState extends State<DebitScreen> {
             color: Colors.black87,
             fontSize: 14,
           ),
+          onChanged: (value) {
+            setState(() {
+              nominals = value;
+            });
+          },
         ),
         const SizedBox(
           height: 8,
@@ -211,12 +289,17 @@ class _DebitScreenState extends State<DebitScreen> {
             color: Colors.black87,
             fontSize: 14,
           ),
+          onChanged: (value) {
+            setState(() {
+              statuss = value;
+            });
+          },
         ),
         const SizedBox(
           height: 4,
         ),
         Text(
-          '** Data debit akan digunakan untuk menghitung saldo akhir yang dimiliki nasabah',
+          '** Contoh status penarikan: Diambil',
           style: GoogleFonts.poppins(
             textStyle: const TextStyle(
               fontSize: 10,

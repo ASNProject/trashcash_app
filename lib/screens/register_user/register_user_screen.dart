@@ -18,6 +18,15 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
   TextEditingController addressController = TextEditingController();
   TextEditingController idNumberController = TextEditingController();
   TextEditingController idStatusController = TextEditingController();
+  TextEditingController idLoadController = TextEditingController();
+
+  String ids = '';
+  String passwords = '';
+  String names = '';
+  String addresss = '';
+  String idNumbers = '';
+  String statuss = '';
+  String loads = '';
 
   Future<void> addCustomer(BuildContext context) async {
     final idUser = idUserController.text;
@@ -26,6 +35,7 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
     final address = addressController.text;
     final idNumber = idNumberController.text;
     final idStatus = idStatusController.text;
+    final idLoad = idLoadController.text;
 
     final success = await BaseRepository.addCustomer(
       idUser: idUser,
@@ -34,6 +44,7 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
       address: address,
       idNumber: idNumber,
       idStatus: idStatus,
+      idLoad: idLoad,
     );
 
     if (success == false) {
@@ -51,6 +62,13 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
                 nameController.clear();
                 addressController.clear();
                 passwordController.clear();
+                ids = '';
+                passwords = '';
+                names = '';
+                addresss = '';
+                idNumbers = '';
+                statuss = '';
+                loads = '';
               },
               child: const Text('OK'),
             ),
@@ -170,7 +188,24 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
                       backgroundColor: const Color(0xFF25A981),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8))),
-                  onPressed: () => addCustomer(context),
+                  onPressed: statuss == '1'
+                      ? ids.isNotEmpty &&
+                              names.isNotEmpty &&
+                              passwords.isNotEmpty &&
+                              addresss.isNotEmpty &&
+                              idNumbers.isNotEmpty &&
+                              statuss.isNotEmpty &&
+                              loads.isNotEmpty
+                          ? () => addCustomer(context)
+                          : null
+                      : ids.isNotEmpty &&
+                              names.isNotEmpty &&
+                              passwords.isNotEmpty &&
+                              addresss.isNotEmpty &&
+                              idNumbers.isNotEmpty &&
+                              statuss.isNotEmpty
+                          ? () => addCustomer(context)
+                          : null,
                   child: Text(
                     'Simpan',
                     style: GoogleFonts.poppins(
@@ -208,22 +243,28 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
         TextFormField(
           controller: idUserController,
           decoration: InputDecoration(
-              hintText: 'Masukkan ID Nasabah',
-              labelStyle: const TextStyle(
-                color: Colors.black87,
-                fontSize: 14,
-              ),
-              border: InputBorder.none,
-              enabledBorder: OutlineInputBorder(
-                borderSide: const BorderSide(color: Colors.grey),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderSide: const BorderSide(color: Colors.blue),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              contentPadding:
-                  const EdgeInsets.symmetric(vertical: 8, horizontal: 8)),
+            hintText: 'Masukkan ID Nasabah',
+            labelStyle: const TextStyle(
+              color: Colors.black87,
+              fontSize: 14,
+            ),
+            border: InputBorder.none,
+            enabledBorder: OutlineInputBorder(
+              borderSide: const BorderSide(color: Colors.grey),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderSide: const BorderSide(color: Colors.blue),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+          ),
+          onChanged: (value) {
+            setState(() {
+              ids = value;
+            });
+          },
           style: const TextStyle(
             color: Colors.black87,
             fontSize: 14,
@@ -267,6 +308,11 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
             color: Colors.black87,
             fontSize: 14,
           ),
+          onChanged: (value) {
+            setState(() {
+              names = value;
+            });
+          },
         ),
         const SizedBox(
           height: 8,
@@ -306,6 +352,11 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
             color: Colors.black87,
             fontSize: 14,
           ),
+          onChanged: (value) {
+            setState(() {
+              passwords = value;
+            });
+          },
           obscureText: true,
         ),
         const SizedBox(
@@ -346,6 +397,11 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
             color: Colors.black87,
             fontSize: 14,
           ),
+          onChanged: (value) {
+            setState(() {
+              addresss = value;
+            });
+          },
         ),
         const SizedBox(
           height: 8,
@@ -385,6 +441,11 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
             color: Colors.black87,
             fontSize: 14,
           ),
+          onChanged: (value) {
+            setState(() {
+              idNumbers = value;
+            });
+          },
         ),
         const SizedBox(
           height: 8,
@@ -424,6 +485,11 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
             color: Colors.black87,
             fontSize: 14,
           ),
+          onChanged: (value) {
+            setState(() {
+              statuss = value;
+            });
+          },
         ),
         Text(
           '** Pilih ID Status: 1: admin, 2: customer',
@@ -435,7 +501,63 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
               fontStyle: FontStyle.italic,
             ),
           ),
-        )
+        ),
+        Visibility(
+          visible: statuss == '1', // Ubah kondisi sesuai kebutuhan Anda
+          child: _addIdLoad(),
+        ),
+      ],
+    );
+  }
+
+  _addIdLoad() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(
+          height: 8,
+        ),
+        Text(
+          'ID Timbangan',
+          style: GoogleFonts.poppins(
+            textStyle: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: Colors.black87),
+          ),
+        ),
+        const SizedBox(
+          height: 4,
+        ),
+        TextFormField(
+          controller: idLoadController,
+          decoration: InputDecoration(
+              hintText: 'Masukkan ID Timbangan',
+              labelStyle: const TextStyle(
+                color: Colors.black87,
+                fontSize: 14,
+              ),
+              border: InputBorder.none,
+              enabledBorder: OutlineInputBorder(
+                borderSide: const BorderSide(color: Colors.grey),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: const BorderSide(color: Colors.blue),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 8, horizontal: 8)),
+          style: const TextStyle(
+            color: Colors.black87,
+            fontSize: 14,
+          ),
+          onChanged: (value) {
+            setState(() {
+              loads = value;
+            });
+          },
+        ),
       ],
     );
   }

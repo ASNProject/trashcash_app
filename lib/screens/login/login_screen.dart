@@ -33,6 +33,8 @@ class _LoginScreenContentState extends State<LoginScreenContent> {
   TextEditingController nasabahIdTextController = TextEditingController();
   TextEditingController passwordTextController = TextEditingController();
 
+  String passwords = '';
+
   Future<void> fetchData(String idUser) async {
     final result = await BaseRepository.fetchData(idUser);
 
@@ -54,10 +56,9 @@ class _LoginScreenContentState extends State<LoginScreenContent> {
 
   @override
   Widget build(BuildContext context) {
-
-    if (userId != null && !dataFetched){
+    if (userId != null && !dataFetched) {
       fetchData(nasabahIdTextController.text);
-      if (dataFromApi != null){
+      if (dataFromApi != null) {
         setState(() {
           dataFetched = true;
         });
@@ -67,7 +68,6 @@ class _LoginScreenContentState extends State<LoginScreenContent> {
         });
       }
     }
-  print(dataFromApi);
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Padding(
@@ -112,7 +112,7 @@ class _LoginScreenContentState extends State<LoginScreenContent> {
           height: 8,
         ),
         Text(
-          'ID Nasabah',
+          'ID Nasabah/Admin',
           style: GoogleFonts.poppins(
             textStyle: const TextStyle(
                 fontSize: 14,
@@ -126,7 +126,7 @@ class _LoginScreenContentState extends State<LoginScreenContent> {
         TextFormField(
           controller: nasabahIdTextController,
           decoration: InputDecoration(
-              hintText: 'Masukkan ID Nasabah',
+              hintText: 'Masukkan ID Nasabah/Admin',
               labelStyle: const TextStyle(
                 color: Colors.black87,
                 fontSize: 14,
@@ -194,6 +194,7 @@ class _LoginScreenContentState extends State<LoginScreenContent> {
           onChanged: (value) {
             setState(() {
               passwordTextController.text = value;
+              passwords = value;
             });
           },
           obscureText: true,
@@ -221,94 +222,93 @@ class _LoginScreenContentState extends State<LoginScreenContent> {
                 backgroundColor: const Color(0xFF25A981),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8))),
-            onPressed: () {
-              setState(() {
-                dataFetched = false;
-              });
-              if (userId != null) {
-                String jsonString = json.encode(dataFromApi);
-                Map<String, dynamic>? jsonData;
+            onPressed: userId != null && passwords.isNotEmpty
+                ? () {
+                    setState(() {
+                      dataFetched = false;
+                    });
+                    if (userId != null) {
+                      String jsonString = json.encode(dataFromApi);
+                      Map<String, dynamic>? jsonData;
 
-                if (jsonString.isNotEmpty) {
-                  jsonData = json.decode(jsonString);
-                }
+                      if (jsonString.isNotEmpty) {
+                        jsonData = json.decode(jsonString);
+                      }
 
-                if (jsonData != null) {
-                  List<dynamic>? dataList = jsonData['data'];
+                      if (jsonData != null) {
+                        List<dynamic>? dataList = jsonData['data'];
 
-                  if (dataList != null && dataList.isNotEmpty) {
-                    Map<String, dynamic> userData = dataList[0];
+                        if (dataList != null && dataList.isNotEmpty) {
+                          Map<String, dynamic> userData = dataList[0];
 
-                    String password = userData['password'] ?? "";
-                    String idUser = userData['id_user'] ?? "";
-                    int status = userData['id_status'] ?? 0;
+                          String password = userData['password'] ?? "";
+                          String idUser = userData['id_user'] ?? "";
+                          int status = userData['id_status'] ?? 0;
 
-                    if (idUser == nasabahIdTextController.text &&
-                        password == passwordTextController.text) {
-                      if (status == 1) {
-                        GoRouter.of(context).pushNamed(
-                          AppRouteConstants.dashboardAdminRouteName,
-                          queryParams: {'idUser': idUser},
-                        );
-                        setState(() {
-                          nasabahIdTextController.clear();
-                          passwordTextController.clear();
-                          dataFromApi = null;
-
-                        });
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            duration: Duration(seconds: 3),
-                            content: Text('Anda adalah customer'),
-                          ),
-                        );
-                        setState(() {
-                          nasabahIdTextController.clear();
-                          passwordTextController.clear();
-                          dataFromApi = null;
-                        });
+                          if (idUser == nasabahIdTextController.text &&
+                              password == passwordTextController.text) {
+                            if (status == 1) {
+                              GoRouter.of(context).pushNamed(
+                                AppRouteConstants.dashboardAdminRouteName,
+                                queryParams: {'idUser': idUser},
+                              );
+                              setState(() {
+                                nasabahIdTextController.clear();
+                                passwordTextController.clear();
+                                dataFromApi = null;
+                                passwords = '';
+                              });
+                            } else {
+                              GoRouter.of(context).pushNamed(
+                                AppRouteConstants.dashboardCustomerRouteName,
+                                queryParams: {'idUser': idUser},
+                              );
+                              setState(() {
+                                nasabahIdTextController.clear();
+                                passwordTextController.clear();
+                                dataFromApi = null;
+                                passwords = '';
+                              });
+                            }
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                duration: Duration(seconds: 3),
+                                content: Text(
+                                  'Gagal login, Id Nasabah atau password salah. Silahkan coba lagi!',
+                                ),
+                              ),
+                            );
+                            setState(() {
+                              nasabahIdTextController.clear();
+                              passwordTextController.clear();
+                              dataFromApi = null;
+                              passwords = '';
+                            });
+                          }
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              duration: Duration(seconds: 3),
+                              content: Text(
+                                'Error decoding JSON data',
+                              ),
+                            ),
+                          );
+                        }
                       }
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           duration: Duration(seconds: 3),
                           content: Text(
-                            'Gagal login, Id Nasabah atau password salah. Silahkan coba lagi!',
+                            'Masukkan ID Nasabah dan Password',
                           ),
                         ),
-
                       );
-                      setState(() {
-                        nasabahIdTextController.clear();
-                        passwordTextController.clear();
-                        dataFromApi = null;
-
-                      });
                     }
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        duration: Duration(seconds: 3),
-                        content: Text(
-                          'Error decoding JSON data',
-                        ),
-                      ),
-                    );
                   }
-                }
-
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    duration: Duration(seconds: 3),
-                    content: Text(
-                      'Masukkan ID Nasabah dan Password',
-                    ),
-                  ),
-                );
-              }
-            },
+                : null,
             child: Text(
               'Masuk',
               style: GoogleFonts.poppins(

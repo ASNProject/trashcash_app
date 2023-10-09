@@ -8,9 +8,9 @@ import 'package:trashcash_app/core/repository/base_repository.dart';
 import 'package:trashcash_app/core/router/app_route_constans.dart';
 
 class DashboardAdminScreen extends StatefulWidget {
-  final String? userId;
+  final String userId;
 
-  const DashboardAdminScreen({super.key, this.userId});
+  const DashboardAdminScreen({super.key, required this.userId});
 
   @override
   State<DashboardAdminScreen> createState() => _DashboardAdminScreenState();
@@ -147,8 +147,10 @@ class _DashboardAdminScreenState extends State<DashboardAdminScreen> {
                 children: [
                   InkWell(
                     onTap: () {
-                      GoRouter.of(context)
-                          .pushNamed(AppRouteConstants.creditRouteName);
+                      GoRouter.of(context).pushNamed(
+                        AppRouteConstants.creditRouteName,
+                        queryParams: {'idUser': widget.userId},
+                      );
                     },
                     child: Container(
                       width: 150,

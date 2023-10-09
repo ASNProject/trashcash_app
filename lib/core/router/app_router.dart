@@ -2,8 +2,11 @@ import 'package:go_router/go_router.dart';
 import 'package:injectable/injectable.dart';
 import 'package:trashcash_app/core/router/app_route_constans.dart';
 import 'package:trashcash_app/screens/credit/credit_screen.dart';
+import 'package:trashcash_app/screens/credit/list_credit_screen.dart';
 import 'package:trashcash_app/screens/dashboard/admin/dashboard_admin_screen.dart';
+import 'package:trashcash_app/screens/dashboard/customer/dashboard_customer_screen.dart';
 import 'package:trashcash_app/screens/debit/debit_screen.dart';
+import 'package:trashcash_app/screens/debit/list_debit_screen.dart';
 import 'package:trashcash_app/screens/list_customer/list_customer_screen.dart';
 import 'package:trashcash_app/screens/login/login_screen.dart';
 import 'package:trashcash_app/screens/register_user/register_user_screen.dart';
@@ -58,7 +61,34 @@ class AppRouter {
             name: AppRouteConstants.creditRouteName,
             path: AppRouteConstants.creditRouteName,
             builder: (context, state) {
-              return const CreditScreen();
+              final iduser = state.queryParams['idUser'] as String;
+              return  CreditScreen(
+                idUser: iduser,
+              );
+            }
+        ),
+        GoRoute(
+            name: AppRouteConstants.listCreditRouteName,
+            path: AppRouteConstants.listCreditRouteName,
+            builder: (context, state) {
+              return const ListCreditScreen();
+            }
+        ),
+        GoRoute(
+            name: AppRouteConstants.listDebitRouteName,
+            path: AppRouteConstants.listDebitRouteName,
+            builder: (context, state) {
+              return const ListDebitScreen();
+            }
+        ),
+        GoRoute(
+            name: AppRouteConstants.dashboardCustomerRouteName,
+            path: AppRouteConstants.dashboardCustomerRouteName,
+            builder: (context, state) {
+              final iduser = state.queryParams['idUser'] as String;
+              return  DashboardCustomerScreen(
+                idUser: iduser,
+              );
             }
         ),
       ],
