@@ -30,13 +30,13 @@ class _CreditScreenState extends State<CreditScreen> {
 
   String ids = '';
   String? loadId;
-  int loadValue = 0;
+  double loadValue = 0;
 
   bool dataFetched = false;
 
   int selectedTypeId = 1;
   int priceType = 0;
-  int? total;
+  double? total;
 
   List<dynamic> typeData = [];
 
@@ -87,49 +87,77 @@ class _CreditScreenState extends State<CreditScreen> {
     final weight = loadValue;
     final totalPrice = total;
 
-    final success = await BaseRepository.addCredit(
-      userId: idUser,
-      typeId: idType.toString(),
-      weight: weight.toString(),
-      credit: totalPrice.toString(),
-    );
+    final allCustomersData = await BaseRepository.fetchDataCustomerAll();
 
-    if (success == false) {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Data kedit berhasil disimpan'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                idUserController.clear();
-                ids = '';
-              },
-              child: const Text('OK'),
+    if (allCustomersData != null) {
+      final List<dynamic> customers = allCustomersData['data'];
+
+      bool userExists =
+          customers.any((customer) => customer['id_user'] == idUser);
+
+      if (userExists) {
+        final success = await BaseRepository.addCredit(
+          userId: idUser,
+          typeId: idType.toString(),
+          weight: weight.toString(),
+          credit: totalPrice.toString(),
+        );
+
+        if (success == false) {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('Data kedit berhasil disimpan'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    idUserController.clear();
+                    ids = '';
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
             ),
-          ],
-        ),
-      );
-    } else {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
+          );
+        } else {
+          showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: const Text('Gagal'),
+                content: const Text(
+                    'Terjadi kesalahan saat menambahkan data kredit.'),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('OK'),
+                  ),
+                ],
+              );
+            },
+          );
+        }
+      } else {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
             title: const Text('Gagal'),
-            content:
-                const Text('Terjadi kesalahan saat menambahkan data kredit.'),
+            content: const Text(
+                'ID yang anda tambahkan tidak ada dalam daftar. Silahkan periksa kembali'),
             actions: [
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
                 child: const Text('OK'),
-              ),
+              )
             ],
-          );
-        },
-      );
+          ),
+        );
+      }
     }
   }
 
@@ -180,7 +208,7 @@ class _CreditScreenState extends State<CreditScreen> {
         if (dataList != null && dataList.isNotEmpty) {
           Map<String, dynamic> userData = dataList.last;
 
-          int value = int.tryParse(userData['value'].toString()) ?? 0;
+          double value = double.tryParse(userData['value'].toString()) ?? 0;
 
           loadValue = value;
         }

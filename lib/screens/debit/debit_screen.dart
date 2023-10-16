@@ -25,52 +25,80 @@ class _DebitScreenState extends State<DebitScreen> {
     final nominal = nominalController.text;
     final status = statusDebitController.text;
 
-    final success = await BaseRepository.addDebit(
-      userId: idUser,
-      debit: nominal,
-      status: status,
-    );
+    final allCustomerData = await BaseRepository.fetchDataCustomerAll();
 
-    if (success == false) {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Data debit berhasil disimpan'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                idUserController.clear();
-                nominalController.clear();
-                statusDebitController.clear();
-                ids = '';
-                nominals = '';
-                statuss = '';
-              },
-              child: const Text('OK'),
+    if (allCustomerData != null) {
+      final List<dynamic> customers = allCustomerData['data'];
+
+      bool userExists =
+          customers.any((customer) => customer['id_user'] == idUser);
+
+      if (userExists) {
+        final success = await BaseRepository.addDebit(
+          userId: idUser,
+          debit: nominal,
+          status: status,
+        );
+
+        if (success == false) {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('Data debit berhasil disimpan'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    idUserController.clear();
+                    nominalController.clear();
+                    statusDebitController.clear();
+                    ids = '';
+                    nominals = '';
+                    statuss = '';
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
             ),
-          ],
-        ),
-      );
-    } else {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
+          );
+        } else {
+          showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: const Text('Gagal'),
+                content: const Text(
+                    'Terjadi kesalahan saat menambahkan data debit.'),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('OK'),
+                  ),
+                ],
+              );
+            },
+          );
+        }
+      } else {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
             title: const Text('Gagal'),
-            content:
-                const Text('Terjadi kesalahan saat menambahkan data debit.'),
+            content: const Text(
+                'ID yang anda tambahkan tidak ada dalam daftar. Silahkan periksa kembali'),
             actions: [
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
                 child: const Text('OK'),
-              ),
+              )
             ],
-          );
-        },
-      );
+          ),
+        );
+      }
     }
   }
 
@@ -110,7 +138,8 @@ class _DebitScreenState extends State<DebitScreen> {
                     ),
                     ElevatedButton.icon(
                       onPressed: () {
-                        GoRouter.of(context).pushNamed(AppRouteConstants.listDebitRouteName);
+                        GoRouter.of(context)
+                            .pushNamed(AppRouteConstants.listDebitRouteName);
                       },
                       icon: const Icon(Icons.list),
                       label: const Text('Lihat Data'),
