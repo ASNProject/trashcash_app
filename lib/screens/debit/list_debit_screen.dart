@@ -164,7 +164,7 @@ class _ListDebitScreenState extends State<ListDebitScreen> {
   }
 
   String formatDate(String inputDate) {
-    final inputFormat = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+    final inputFormat = DateFormat("yyyy-MM-dd HH:mm:ss");
     final outputFormat =
     DateFormat("dd MMMM yyyy", 'id_ID'); // 'id_ID' untuk bahasa Indonesia
 

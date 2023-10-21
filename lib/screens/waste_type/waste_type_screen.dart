@@ -23,24 +23,18 @@ class _WasteTypeScreenState extends State<WasteTypeScreen> {
     final type = typeController.text;
     final price = priceController.text;
 
-    final success = await BaseRepository.addWasteType(
-      idType: idType,
-      type: type,
-      price: price,
-    );
+    final existingData = await BaseRepository.fetchDataTypeWasteId(idType);
 
-    if (success == false) {
+    if (existingData != null) {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Data jenis sampah berhasil ditambahkan.'),
+          title: const Text('Gagal'),
+          content: const Text('ID Jenis Sampah sudah ada di database.'),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                idTypeController.clear();
-                typeController.clear();
-                priceController.clear();
               },
               child: const Text('OK'),
             ),
@@ -48,24 +42,50 @@ class _WasteTypeScreenState extends State<WasteTypeScreen> {
         ),
       );
     } else {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: const Text('Gagal'),
-            content: const Text(
-                'Terjadi kesalahan saat menambahkan data jenis sampah.'),
+      final success = await BaseRepository.addWasteType(
+        idType: idType,
+        type: type,
+        price: price,
+      );
+
+      if (success == false) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Data jenis sampah berhasil ditambahkan.'),
             actions: [
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
+                  idTypeController.clear();
+                  typeController.clear();
+                  priceController.clear();
                 },
                 child: const Text('OK'),
               ),
             ],
-          );
-        },
-      );
+          ),
+        );
+      } else {
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text('Gagal'),
+              content: const Text(
+                  'Terjadi kesalahan saat menambahkan data jenis sampah.'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      }
     }
   }
 

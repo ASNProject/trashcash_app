@@ -37,38 +37,18 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
     final idStatus = idStatusController.text;
     final idLoad = idLoadController.text;
 
-    final success = await BaseRepository.addCustomer(
-      idUser: idUser,
-      password: password,
-      name: name,
-      address: address,
-      idNumber: idNumber,
-      idStatus: idStatus,
-      idLoad: idLoad,
-    );
+    final existingData = await BaseRepository.fetchData(idUser);
 
-    if (success == false) {
+    if (existingData != null) {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Data nasabah berhasil ditambahkan.'),
+          title: const Text('Gagal'),
+          content: const Text('ID User sudah ada di database.'),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                idUserController.clear();
-                idStatusController.clear();
-                idNumberController.clear();
-                nameController.clear();
-                addressController.clear();
-                passwordController.clear();
-                ids = '';
-                passwords = '';
-                names = '';
-                addresss = '';
-                idNumbers = '';
-                statuss = '';
-                loads = '';
               },
               child: const Text('OK'),
             ),
@@ -76,24 +56,64 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
         ),
       );
     } else {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: const Text('Gagal'),
-            content: const Text(
-                'Terjadi kesalahan saat menambahkan data pelanggan.'),
+      final success = await BaseRepository.addCustomer(
+        idUser: idUser,
+        password: password,
+        name: name,
+        address: address,
+        idNumber: idNumber,
+        idStatus: idStatus,
+        idLoad: idLoad,
+      );
+
+      if (success == false) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Data nasabah berhasil ditambahkan.'),
             actions: [
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
+                  idUserController.clear();
+                  idStatusController.clear();
+                  idNumberController.clear();
+                  nameController.clear();
+                  addressController.clear();
+                  passwordController.clear();
+                  ids = '';
+                  passwords = '';
+                  names = '';
+                  addresss = '';
+                  idNumbers = '';
+                  statuss = '';
+                  loads = '';
                 },
                 child: const Text('OK'),
               ),
             ],
-          );
-        },
-      );
+          ),
+        );
+      } else {
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text('Gagal'),
+              content: const Text(
+                  'Terjadi kesalahan saat menambahkan data pelanggan.'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      }
     }
   }
 
@@ -101,125 +121,116 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      body: Stack(
-        children: [
-          SizedBox(
-            height: double.infinity,
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 32,
+      body: SizedBox(
+        height: MediaQuery.of(context).size.height,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 32,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Registrasi Nasabah',
+                  style: GoogleFonts.poppins(
+                    textStyle: const TextStyle(
+                        fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                const SizedBox(
+                  height: 16,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Registrasi Nasabah',
+                      'Data Diri',
                       style: GoogleFonts.poppins(
                         textStyle: const TextStyle(
-                            fontSize: 24, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 16,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Data Diri',
-                          style: GoogleFonts.poppins(
-                            textStyle: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.black87),
-                          ),
-                        ),
-                        ElevatedButton.icon(
-                          onPressed: () {
-                            GoRouter.of(context).pushNamed(
-                                AppRouteConstants.listCustomerRouteName);
-                          },
-                          icon: const Icon(Icons.list),
-                          label: const Text('Lihat Data'),
-                          style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all<Color>(
-                                const Color(0xFF25A981)),
-                          ),
-                        )
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 8,
-                    ),
-                    _buildForm(),
-                    const SizedBox(
-                      height: 8,
-                    ),
-                    Text(
-                      'Pastikan data yang ditambahkan sudah benar.',
-                      style: GoogleFonts.poppins(
-                        textStyle: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
                             color: Colors.black87),
                       ),
                     ),
-                    const SizedBox(
-                      height: 24,
-                    ),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        GoRouter.of(context)
+                            .pushNamed(AppRouteConstants.listCustomerRouteName);
+                      },
+                      icon: const Icon(Icons.list),
+                      label: const Text('Lihat Data'),
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all<Color>(
+                            const Color(0xFF25A981)),
+                      ),
+                    )
                   ],
                 ),
+                const SizedBox(
+                  height: 8,
+                ),
+                _buildForm(),
+                const SizedBox(
+                  height: 8,
+                ),
+                Text(
+                  'Pastikan data yang ditambahkan sudah benar.',
+                  style: GoogleFonts.poppins(
+                    textStyle: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black87),
+                  ),
+                ),
+                const SizedBox(
+                  height: 24,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: SizedBox(
+          width: double.infinity,
+          height: 45,
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF25A981),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8))),
+            onPressed: statuss == '1'
+                ? ids.isNotEmpty &&
+                        names.isNotEmpty &&
+                        passwords.isNotEmpty &&
+                        addresss.isNotEmpty &&
+                        idNumbers.isNotEmpty &&
+                        statuss.isNotEmpty &&
+                        loads.isNotEmpty
+                    ? () => addCustomer(context)
+                    : null
+                : ids.isNotEmpty &&
+                        names.isNotEmpty &&
+                        passwords.isNotEmpty &&
+                        addresss.isNotEmpty &&
+                        idNumbers.isNotEmpty &&
+                        statuss.isNotEmpty
+                    ? () => addCustomer(context)
+                    : null,
+            child: Text(
+              'Simpan',
+              style: GoogleFonts.poppins(
+                textStyle: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white),
               ),
             ),
           ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: SizedBox(
-                width: double.infinity,
-                height: 45,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF25A981),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8))),
-                  onPressed: statuss == '1'
-                      ? ids.isNotEmpty &&
-                              names.isNotEmpty &&
-                              passwords.isNotEmpty &&
-                              addresss.isNotEmpty &&
-                              idNumbers.isNotEmpty &&
-                              statuss.isNotEmpty &&
-                              loads.isNotEmpty
-                          ? () => addCustomer(context)
-                          : null
-                      : ids.isNotEmpty &&
-                              names.isNotEmpty &&
-                              passwords.isNotEmpty &&
-                              addresss.isNotEmpty &&
-                              idNumbers.isNotEmpty &&
-                              statuss.isNotEmpty
-                          ? () => addCustomer(context)
-                          : null,
-                  child: Text(
-                    'Simpan',
-                    style: GoogleFonts.poppins(
-                      textStyle: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          )
-        ],
+        ),
       ),
     );
   }

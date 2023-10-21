@@ -62,7 +62,6 @@ class _CreditScreenState extends State<CreditScreen> {
 
     setState(() {
       typeWasteIdFromApi = result;
-      dataFetched = true;
     });
   }
 
@@ -93,7 +92,7 @@ class _CreditScreenState extends State<CreditScreen> {
       final List<dynamic> customers = allCustomersData['data'];
 
       bool userExists =
-          customers.any((customer) => customer['id_user'] == idUser);
+      customers.any((customer) => customer['id_user'] == idUser);
 
       if (userExists) {
         final success = await BaseRepository.addCredit(
@@ -210,7 +209,9 @@ class _CreditScreenState extends State<CreditScreen> {
 
           double value = double.tryParse(userData['value'].toString()) ?? 0;
 
-          loadValue = value;
+          setState(() {
+            loadValue = value;
+          });
         }
       }
     }
@@ -497,7 +498,7 @@ class _CreditScreenState extends State<CreditScreen> {
                 borderRadius: BorderRadius.circular(8),
               ),
               contentPadding:
-                  const EdgeInsets.symmetric(vertical: 8, horizontal: 8)),
+              const EdgeInsets.symmetric(vertical: 8, horizontal: 8)),
           style: const TextStyle(
             color: Colors.black87,
             fontSize: 14,
@@ -575,14 +576,14 @@ class _CreditScreenState extends State<CreditScreen> {
               'Total',
               style: GoogleFonts.poppins(
                 textStyle:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
             Text(
               '$total',
               style: GoogleFonts.poppins(
                 textStyle:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
           ],
