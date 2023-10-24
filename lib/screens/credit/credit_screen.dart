@@ -111,8 +111,10 @@ class _CreditScreenState extends State<CreditScreen> {
                 TextButton(
                   onPressed: () {
                     Navigator.of(context).pop();
-                    idUserController.clear();
-                    ids = '';
+                    setState(() {
+                      idUserController.clear();
+                      ids = '';
+                    });
                   },
                   child: const Text('OK'),
                 ),
@@ -165,6 +167,11 @@ class _CreditScreenState extends State<CreditScreen> {
     super.initState();
     fetchCustomer();
     fetchTypeWaste();
+  }
+
+  @override
+  void dispose(){
+    super.dispose();
   }
 
   @override
@@ -255,9 +262,9 @@ class _CreditScreenState extends State<CreditScreen> {
         if (dataList != null && dataList.isNotEmpty) {
           Map<String, dynamic> userData = dataList[0];
 
-          int value = userData['price'];
+          int? value = int.tryParse(userData['price'] ?? '');
 
-          priceType = value;
+          priceType = value!;
         }
       }
     }
@@ -540,7 +547,7 @@ class _CreditScreenState extends State<CreditScreen> {
               value: selectedTypeId,
               items: typeData.map((item) {
                 return DropdownMenuItem<int>(
-                  value: item['id_type'],
+                  value: int.tryParse(item['id_type'] ?? '') ?? 1,
                   child: Text(item['type']),
                 );
               }).toList(),

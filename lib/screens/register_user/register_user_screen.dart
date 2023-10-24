@@ -75,19 +75,21 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
-                  idUserController.clear();
-                  idStatusController.clear();
-                  idNumberController.clear();
-                  nameController.clear();
-                  addressController.clear();
-                  passwordController.clear();
-                  ids = '';
-                  passwords = '';
-                  names = '';
-                  addresss = '';
-                  idNumbers = '';
-                  statuss = '';
-                  loads = '';
+                  setState(() {
+                    idUserController.clear();
+                    idStatusController.clear();
+                    idNumberController.clear();
+                    nameController.clear();
+                    addressController.clear();
+                    passwordController.clear();
+                    ids = '';
+                    passwords = '';
+                    names = '';
+                    addresss = '';
+                    idNumbers = '';
+                    statuss = '';
+                    loads = '';
+                  });
                 },
                 child: const Text('OK'),
               ),

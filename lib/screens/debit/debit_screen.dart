@@ -49,12 +49,14 @@ class _DebitScreenState extends State<DebitScreen> {
                 TextButton(
                   onPressed: () {
                     Navigator.of(context).pop();
-                    idUserController.clear();
-                    nominalController.clear();
-                    statusDebitController.clear();
-                    ids = '';
-                    nominals = '';
-                    statuss = '';
+                    setState(() {
+                      idUserController.clear();
+                      nominalController.clear();
+                      statusDebitController.clear();
+                      ids = '';
+                      nominals = '';
+                      statuss = '';
+                    });
                   },
                   child: const Text('OK'),
                 ),

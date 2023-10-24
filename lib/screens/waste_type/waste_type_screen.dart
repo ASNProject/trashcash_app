@@ -57,9 +57,14 @@ class _WasteTypeScreenState extends State<WasteTypeScreen> {
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
-                  idTypeController.clear();
-                  typeController.clear();
-                  priceController.clear();
+                  setState(() {
+                    idTypeController.clear();
+                    typeController.clear();
+                    priceController.clear();
+                    idTypes = '';
+                    types = '';
+                    prices = '';
+                  });
                 },
                 child: const Text('OK'),
               ),

@@ -65,7 +65,10 @@ class _DashboardAdminScreenState extends State<DashboardAdminScreen> {
       if (dataListDebit != null && dataListDebit.isNotEmpty) {
         for (var item in dataListDebit) {
           if (item.containsKey('debit') && item['debit'] != null) {
-            totalDebit += (item['debit'] as num).toInt();
+            final debitValue = num.tryParse(item['debit'].toString());
+            if (debitValue != null){
+              totalDebit += debitValue.toInt();
+            }
           }
         }
       }
@@ -84,7 +87,11 @@ class _DashboardAdminScreenState extends State<DashboardAdminScreen> {
       if (dataListCredit != null && dataListCredit.isNotEmpty) {
         for (var item in dataListCredit) {
           if (item.containsKey('credit') && item['credit'] != null) {
-            totalCredit += (item['credit'] as num).toInt();
+            // totalCredit += (item['credit'] as num).toInt();
+            final creditValue = num.tryParse(item['credit'].toString());
+            if (creditValue != null){
+              totalCredit += creditValue.toInt();
+            }
           }
         }
       }
@@ -98,39 +105,42 @@ class _DashboardAdminScreenState extends State<DashboardAdminScreen> {
         );
 
     return Scaffold(
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(
-              top: 32,
-              left: 16,
-              bottom: 16,
-            ),
-            child: Text(
-              'Dashboard',
-              style: GoogleFonts.poppins(
-                textStyle:
-                    const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+      body: WillPopScope(
+        onWillPop: _onWillPop,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(
+                top: 32,
+                left: 16,
+                bottom: 16,
+              ),
+              child: Text(
+                'Dashboard',
+                style: GoogleFonts.poppins(
+                  textStyle:
+                      const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
               ),
             ),
-          ),
-          _buildCardDashboard(formattedString),
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              vertical: 16,
-              horizontal: 16,
-            ),
-            child: Text(
-              'Menu',
-              style: GoogleFonts.poppins(
-                textStyle:
-                    const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            _buildCardDashboard(formattedString),
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                vertical: 16,
+                horizontal: 16,
+              ),
+              child: Text(
+                'Menu',
+                style: GoogleFonts.poppins(
+                  textStyle:
+                      const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                ),
               ),
             ),
-          ),
-          _buildMenu(),
-        ],
+            _buildMenu(),
+          ],
+        ),
       ),
     );
   }
@@ -407,5 +417,9 @@ class _DashboardAdminScreenState extends State<DashboardAdminScreen> {
         ),
       ),
     );
+  }
+
+  Future<bool> _onWillPop() {
+    return Future.value(true);
   }
 }

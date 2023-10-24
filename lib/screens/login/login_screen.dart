@@ -37,7 +37,6 @@ class _LoginScreenContentState extends State<LoginScreenContent> {
 
   Future<void> fetchData(String idUser) async {
     final result = await BaseRepository.fetchData(idUser);
-
     setState(() {
       dataFromApi = result;
     });
@@ -243,7 +242,7 @@ class _LoginScreenContentState extends State<LoginScreenContent> {
 
                           String password = userData['password'] ?? "";
                           String idUser = userData['id_user'] ?? "";
-                          int status = userData['id_status'] ?? 0;
+                          int status = int.tryParse(userData['id_status']) ?? 0;
 
                           if (idUser == nasabahIdTextController.text &&
                               password == passwordTextController.text) {

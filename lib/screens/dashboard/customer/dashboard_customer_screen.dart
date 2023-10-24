@@ -100,7 +100,10 @@ class _DashboardCustomerScreenState extends State<DashboardCustomerScreen> {
       if (dataListDebit != null && dataListDebit.isNotEmpty) {
         for (var item in dataListDebit) {
           if (item.containsKey('debit') && item['debit'] != null) {
-            totalDebit += (item['debit'] as num).toInt();
+            final debitValue = num.tryParse(item['debit'].toString());
+            if (debitValue != null) {
+              totalDebit += debitValue.toInt();
+            }
           }
         }
       }
@@ -119,7 +122,10 @@ class _DashboardCustomerScreenState extends State<DashboardCustomerScreen> {
       if (dataListCredit != null && dataListCredit.isNotEmpty) {
         for (var item in dataListCredit) {
           if (item.containsKey('credit') && item['credit'] != null) {
-            totalCredit += (item['credit'] as num).toInt();
+            final creditValue = num.tryParse(item['credit'].toString());
+            if (creditValue != null){
+              totalCredit += creditValue.toInt();
+            }
           }
         }
       }
@@ -445,7 +451,7 @@ class _DashboardCustomerScreenState extends State<DashboardCustomerScreen> {
   }
 
   String formatDate(String inputDate) {
-    final inputFormat = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+    final inputFormat = DateFormat("yyyy-MM-dd HH:mm:ss");
     final outputFormat =
         DateFormat("dd MMMM yyyy", 'id_ID'); // 'id_ID' untuk bahasa Indonesia
 
