@@ -21,10 +21,6 @@ flutter pub get
 
 Run this project:
 ```
-flutter build
-
-or
-
 flutter run
 ```
 
