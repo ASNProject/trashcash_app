@@ -30,7 +30,7 @@ class _CreditScreenState extends State<CreditScreen> {
 
   String ids = '';
   String? loadId;
-  double loadValue = 0;
+  double? loadValue = 0;
 
   bool dataFetched = false;
 
@@ -238,7 +238,7 @@ class _CreditScreenState extends State<CreditScreen> {
           typeData = dataList!;
         });
         if (dataList != null && dataList.isNotEmpty) {
-          Map<String, dynamic> userData = dataList[0];
+          // Map<String, dynamic> userData = dataList[0];
 
           // int value = userData['value'] ?? 0;
           //
@@ -270,7 +270,7 @@ class _CreditScreenState extends State<CreditScreen> {
     }
 
     ///------------Calculate Total--------------------
-    total = loadValue * priceType;
+    total = loadValue! * priceType;
 
     return Scaffold(
       resizeToAvoidBottomInset: false,

@@ -96,8 +96,8 @@ class _ListCustomerScreenState extends State<ListCustomerScreen> {
                     if (jsonData != null) {
                       String csv = jsonToCsv(jsonData['data'] ?? []);
                       await saveCsvToFile(csv);
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        content: const Text(
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text(
                             'CSV berhasil di download. Silahkan buka Android/data/com.trashcash.trashcash_app/files'),
                       ));
                     }
@@ -127,6 +127,7 @@ class _ListCustomerScreenState extends State<ListCustomerScreen> {
                     child: DataTable(
                       columns: const [
                         DataColumn(label: Text('ID Nasabah')),
+                        DataColumn(label: Text('Password')),
                         DataColumn(label: Text('Nama')),
                         DataColumn(label: Text('NIK')),
                         DataColumn(label: Text('Alamat')),
@@ -137,6 +138,7 @@ class _ListCustomerScreenState extends State<ListCustomerScreen> {
                           ? jsonData['data'].map<DataRow>((data) {
                               return DataRow(cells: [
                                 DataCell(Text(data['id_user'] ?? '')),
+                                DataCell(Text(data['password'] ?? '')),
                                 DataCell(Text(data['name'] ?? '')),
                                 DataCell(Text(data['id_number'] ?? '')),
                                 DataCell(Text(data['address'] ?? '')),
@@ -183,19 +185,20 @@ class _ListCustomerScreenState extends State<ListCustomerScreen> {
 
     // Add CSV header (column names) based on your JSON data structure
     csvData
-        .add(['ID Nasabah', 'Nama', 'NIK', 'Alamat', 'Status', 'Registrasi']);
+        .add(['ID Nasabah', 'Password', 'Nama', 'NIK', 'Alamat', 'Status', 'Registrasi']);
 
     // Add rows of data from JSON
-    jsonData.forEach((data) {
+    for (var data in jsonData) {
       csvData.add([
         data['id_user'] ?? '',
+        data['password'] ?? '',
         data['name'] ?? '',
         data['id_number'] ?? '',
         data['address'] ?? '',
         data['status']['status'] ?? '',
         data['registration'] ?? '',
       ]);
-    });
+    }
 
     // Convert to CSV format
     String csv = const ListToCsvConverter().convert(csvData);

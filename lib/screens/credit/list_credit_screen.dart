@@ -97,8 +97,8 @@ class _ListCreditScreenState extends State<ListCreditScreen> {
                     if (jsonData != null) {
                       String csv = jsonToCsv(jsonData['data'] ?? []);
                       await saveCsvToFile(csv);
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        content: const Text(
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text(
                             'CSV berhasil di download. Silahkan buka Android/data/com.trashcash.trashcash_app/files'),
                       ));
                     }
@@ -140,9 +140,9 @@ class _ListCreditScreenState extends State<ListCreditScreen> {
                         return DataRow(cells: [
                           DataCell(Text(data['id_user'] ?? '')),
                           DataCell(Text(data['type_waste']['type'] ?? '')),
-                          DataCell(Text(data['type_waste']['price'].toString() ?? '')),
-                          DataCell(Text(data['weight'].toString() ?? '')),
-                          DataCell(Text(data['credit'].toString() ?? '')),
+                          DataCell(Text(data['type_waste']['price'].toString() )),
+                          DataCell(Text(data['weight'].toString() )),
+                          DataCell(Text(data['credit'].toString() )),
                           DataCell(Text(
                               formatDate(data['date_credit'] ?? ''))),
                         ]);
@@ -188,7 +188,7 @@ class _ListCreditScreenState extends State<ListCreditScreen> {
         .add(['ID Nasabah', 'Jenis Sampah', 'Harga Satuan', 'Berat', 'Total Kredit', 'Tanggal']);
 
     // Add rows of data from JSON
-    jsonData.forEach((data) {
+    for (var data in jsonData) {
       csvData.add([
         data['id_user'] ?? '',
         data['type_waste']['type'] ?? '',
@@ -197,7 +197,7 @@ class _ListCreditScreenState extends State<ListCreditScreen> {
         data['credit'] ?? '',
         data['date_credit'] ?? '',
       ]);
-    });
+    }
 
     // Convert to CSV format
     String csv = const ListToCsvConverter().convert(csvData);

@@ -97,8 +97,8 @@ class _ListDebitScreenState extends State<ListDebitScreen> {
                     if (jsonData != null) {
                       String csv = jsonToCsv(jsonData['data'] ?? []);
                       await saveCsvToFile(csv);
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        content: const Text(
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text(
                             'CSV berhasil di download. Silahkan buka Android/data/com.trashcash.trashcash_app/files'),
                       ));
                     }
@@ -137,9 +137,9 @@ class _ListDebitScreenState extends State<ListDebitScreen> {
                           ? jsonData['data'].map<DataRow>((data) {
                         return DataRow(cells: [
                           DataCell(Text(data['id_user'] ?? '')),
-                          DataCell(Text(data['debit'].toString() ?? '')),
+                          DataCell(Text(data['debit'].toString() )),
                           DataCell(Text(data['status_withdrawal'] ?? '')),
-                          DataCell(Text(formatDate(data['date_withdrawal']) ?? '')),
+                          DataCell(Text(formatDate(data['date_withdrawal']) )),
                         ]);
                       }).toList()
                           : [],
@@ -183,14 +183,14 @@ class _ListDebitScreenState extends State<ListDebitScreen> {
         .add(['ID Nasabah', 'Debit', 'Harga Satuan', 'Status', 'Tanggal']);
 
     // Add rows of data from JSON
-    jsonData.forEach((data) {
+    for (var data in jsonData) {
       csvData.add([
         data['id_user'] ?? '',
         data['debit'] ?? '',
         data['status_withdrawal'] ?? '',
         data['date_withdrawal'] ?? '',
       ]);
-    });
+    }
 
     // Convert to CSV format
     String csv = const ListToCsvConverter().convert(csvData);

@@ -278,9 +278,9 @@ class _DashboardCustomerScreenState extends State<DashboardCustomerScreen> {
                             DataCell(Text(data['id_user'] ?? '')),
                             DataCell(Text(data['type_waste']['type'] ?? '')),
                             DataCell(Text(
-                                data['type_waste']['price'].toString() ?? '')),
-                            DataCell(Text(data['weight'].toString() ?? '')),
-                            DataCell(Text(data['credit'].toString() ?? '')),
+                                data['type_waste']['price'].toString() )),
+                            DataCell(Text(data['weight'].toString() )),
+                            DataCell(Text(data['credit'].toString() )),
                             DataCell(
                                 Text(formatDate(data['date_credit'] ?? ''))),
                           ]);
@@ -310,10 +310,10 @@ class _DashboardCustomerScreenState extends State<DashboardCustomerScreen> {
                       ? jsonDebit['data'].map<DataRow>((data) {
                           return DataRow(cells: [
                             DataCell(Text(data['id_user'] ?? '')),
-                            DataCell(Text(data['debit'].toString() ?? '')),
+                            DataCell(Text(data['debit'].toString() )),
                             DataCell(Text(data['status_withdrawal'] ?? '')),
                             DataCell(Text(
-                                formatDate(data['date_withdrawal']) ?? '')),
+                                formatDate(data['date_withdrawal']) )),
                           ]);
                         }).toList()
                       : [],
@@ -471,14 +471,14 @@ class _DashboardCustomerScreenState extends State<DashboardCustomerScreen> {
         .add(['ID Nasabah', 'Debit', 'Harga Satuan', 'Status', 'Tanggal']);
 
     // Add rows of data from JSON
-    jsonData.forEach((data) {
+    for (var data in jsonData) {
       csvData.add([
         data['id_user'] ?? '',
         data['debit'] ?? '',
         data['status_withdrawal'] ?? '',
         data['date_withdrawal'] ?? '',
       ]);
-    });
+    }
 
     // Convert to CSV format
     String csv = const ListToCsvConverter().convert(csvData);
@@ -504,7 +504,7 @@ class _DashboardCustomerScreenState extends State<DashboardCustomerScreen> {
         .add(['ID Nasabah', 'Jenis Sampah', 'Harga Satuan', 'Berat', 'Total Kredit', 'Tanggal']);
 
     // Add rows of data from JSON
-    jsonData.forEach((data) {
+    for (var data in jsonData) {
       csvData.add([
         data['id_user'] ?? '',
         data['type_waste']['type'] ?? '',
@@ -513,7 +513,7 @@ class _DashboardCustomerScreenState extends State<DashboardCustomerScreen> {
         data['credit'] ?? '',
         data['date_credit'] ?? '',
       ]);
-    });
+    }
 
     // Convert to CSV format
     String csv = const ListToCsvConverter().convert(csvData);
