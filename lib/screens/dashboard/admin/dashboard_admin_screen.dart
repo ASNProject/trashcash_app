@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -19,6 +20,9 @@ class DashboardAdminScreen extends StatefulWidget {
 class _DashboardAdminScreenState extends State<DashboardAdminScreen> {
   DateTime now = DateTime.now();
   String formattedDate = '';
+  bool doubleTapToExit = false;
+  final int delay = 2000;
+  Timer? doubleTapTimer;
 
   Map? debitFromApi;
   Map? creditFromApi;
@@ -106,7 +110,20 @@ class _DashboardAdminScreenState extends State<DashboardAdminScreen> {
 
     return Scaffold(
       body: WillPopScope(
-        onWillPop: _onWillPop,
+        onWillPop: () async {
+          if (doubleTapToExit) {
+            return true;
+          } else {
+            doubleTapToExit = true;
+            doubleTapTimer = Timer(Duration(milliseconds: delay), () {
+              doubleTapToExit = false;
+            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Tekan sekali lagi untuk keluar')),
+            );
+            return false;
+          }
+        },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -419,7 +436,5 @@ class _DashboardAdminScreenState extends State<DashboardAdminScreen> {
     );
   }
 
-  Future<bool> _onWillPop() {
-    return Future.value(true);
-  }
+
 }

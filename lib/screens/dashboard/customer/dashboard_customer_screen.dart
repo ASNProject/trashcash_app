@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -27,6 +28,9 @@ class _DashboardCustomerScreenState extends State<DashboardCustomerScreen> {
   Map? customerFromApi;
   Map? creditFromApi;
   Map? debitFromApi;
+  bool doubleTapToExit = false;
+  final int delay = 2000;
+  Timer? doubleTapTimer;
 
   String? nameCustomer;
   String? formattedString;
@@ -140,87 +144,103 @@ class _DashboardCustomerScreenState extends State<DashboardCustomerScreen> {
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      body: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 32,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Selamat Datang',
-              style: GoogleFonts.poppins(
-                textStyle:
-                    const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-            ),
-            const SizedBox(
-              height: 2,
-            ),
-            Text(
-              '$nameCustomer',
-              style: GoogleFonts.poppins(
-                textStyle:
-                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-            ),
-            const SizedBox(
-              height: 16,
-            ),
-            _buildCardCustomer(),
-            const SizedBox(
-              height: 16,
-            ),
-            _buildTabBar(
-              jsonDebit ?? {},
-              jsonCredit ?? {},
-            ),
-            const SizedBox(
-              height: 8,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                ElevatedButton.icon(
-                  onPressed: () async {
-                    if (jsonCredit != null) {
-                      String csv = jsonToCsv(jsonCredit['data'] ?? []);
-                      await saveCsvToFile(csv);
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                        content: Text(
-                            'CSV berhasil di download. Silahkan buka Android/data/com.trashcash.trashcash_app/files'),
-                      ));
-                    }
-                  },
-                  icon: const Icon(Icons.download),
-                  label: const Text('Unduh Data Credit'),
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all<Color>(
-                        const Color(0xFF25A981)),
-                  ),
+      body: WillPopScope(
+        onWillPop: () async {
+          if (doubleTapToExit) {
+            return true;
+          } else {
+            doubleTapToExit = true;
+            doubleTapTimer = Timer(Duration(milliseconds: delay), () {
+              doubleTapToExit = false;
+            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Tekan sekali lagi untuk keluar')),
+            );
+            return false;
+          }
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 32,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Selamat Datang',
+                style: GoogleFonts.poppins(
+                  textStyle:
+                      const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
-                ElevatedButton.icon(
-                  onPressed: () async {
-                    if (jsonDebit != null) {
-                      String csv = jsonToCsvDebit(jsonDebit['data'] ?? []);
-                      await saveCsvToFileDebit(csv);
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                        content: Text(
-                            'CSV berhasil di download. Silahkan buka Android/data/com.trashcash.trashcash_app/files'),
-                      ));
-                    }
-                  },
-                  icon: const Icon(Icons.download),
-                  label: const Text('Unduh Data Debit'),
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all<Color>(
-                        const Color(0xFF25A981)),
+              ),
+              const SizedBox(
+                height: 2,
+              ),
+              Text(
+                '$nameCustomer',
+                style: GoogleFonts.poppins(
+                  textStyle:
+                      const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
+              const SizedBox(
+                height: 16,
+              ),
+              _buildCardCustomer(),
+              const SizedBox(
+                height: 16,
+              ),
+              _buildTabBar(
+                jsonDebit ?? {},
+                jsonCredit ?? {},
+              ),
+              const SizedBox(
+                height: 8,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: () async {
+                      if (jsonCredit != null) {
+                        String csv = jsonToCsv(jsonCredit['data'] ?? []);
+                        await saveCsvToFile(csv);
+                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                          content: Text(
+                              'CSV berhasil di download. Silahkan buka Android/data/com.trashcash.trashcash_app/files'),
+                        ));
+                      }
+                    },
+                    icon: const Icon(Icons.download),
+                    label: const Text('Unduh Data Credit'),
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all<Color>(
+                          const Color(0xFF25A981)),
+                    ),
                   ),
-                )
-              ],
-            )
-          ],
+                  ElevatedButton.icon(
+                    onPressed: () async {
+                      if (jsonDebit != null) {
+                        String csv = jsonToCsvDebit(jsonDebit['data'] ?? []);
+                        await saveCsvToFileDebit(csv);
+                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                          content: Text(
+                              'CSV berhasil di download. Silahkan buka Android/data/com.trashcash.trashcash_app/files'),
+                        ));
+                      }
+                    },
+                    icon: const Icon(Icons.download),
+                    label: const Text('Unduh Data Debit'),
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all<Color>(
+                          const Color(0xFF25A981)),
+                    ),
+                  )
+                ],
+              )
+            ],
+          ),
         ),
       ),
     );
