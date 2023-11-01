@@ -4,26 +4,28 @@ TrashCash App is the latest innovation in waste payment and processing managemen
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+Clone this project:
+```
+git clone https://github.com/ASNProject/trashcash_app.git
+```
 
-A few resources to get you started if this is your first Flutter project:
+Open project:
+```
+cd trashcash_app
+```
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+Pub get:
+```
+flutter pub get
+```
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Run this project:
+```
+flutter run
+```
 
-[DONE]
-
-- Login 
-- Get data from API
-
-[ON PROGRESS]
-
-- Dashboard Admin
-- Register Customer
-- Dashboard Customer
-
+Release App:
+```
+flutter build apk --release
+```
 
