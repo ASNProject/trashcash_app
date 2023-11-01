@@ -5,7 +5,7 @@ class BaseRepository {
   // static const baseUrl =
   //     "https://app-574b3b2b-05f4-4a14-a811-fd215c1e4fdf.cleverapps.io";
   static const baseUrl =
-      "http://asnproject.site/api";
+      "https://asnproject.site/api";
 
   static Future<Map<String, dynamic>?> fetchData(String idUser) async {
     try {
@@ -34,6 +34,20 @@ class BaseRepository {
       }
     } catch (e) {
       return null;
+    }
+  }
+
+  static Future<bool> deleteCustomer(String idUser) async {
+    try {
+      final response = await http.delete(Uri.parse('$baseUrl/customers/$idUser'));
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      return false;
     }
   }
 

@@ -133,6 +133,7 @@ class _ListCustomerScreenState extends State<ListCustomerScreen> {
                         DataColumn(label: Text('Alamat')),
                         DataColumn(label: Text('Status')),
                         DataColumn(label: Text('Registrasi')),
+                        DataColumn(label: Text('Aksi')),
                       ],
                       rows: jsonData != null
                           ? jsonData['data'].map<DataRow>((data) {
@@ -145,6 +146,19 @@ class _ListCustomerScreenState extends State<ListCustomerScreen> {
                                 DataCell(Text(data['status']['status'] ?? '')),
                                 DataCell(Text(
                                     formatDate(data['registration'] ?? ''))),
+                                DataCell(OutlinedButton.icon(
+                                  onPressed: () {
+                                    String idUserToDelete = data[
+                                        'id_user']; // Mendapatkan id_user yang akan dihapus
+                                    showDeleteConfirmationDialog(
+                                        idUserToDelete);
+                                  },
+                                  icon: const Icon(
+                                    Icons.delete,
+                                    color: Colors.red,
+                                  ),
+                                  label: const Text('Hapus'),
+                                ))
                               ]);
                             }).toList()
                           : [],
@@ -184,8 +198,15 @@ class _ListCustomerScreenState extends State<ListCustomerScreen> {
     List<List<dynamic>> csvData = [];
 
     // Add CSV header (column names) based on your JSON data structure
-    csvData
-        .add(['ID Nasabah', 'Password', 'Nama', 'NIK', 'Alamat', 'Status', 'Registrasi']);
+    csvData.add([
+      'ID Nasabah',
+      'Password',
+      'Nama',
+      'NIK',
+      'Alamat',
+      'Status',
+      'Registrasi'
+    ]);
 
     // Add rows of data from JSON
     for (var data in jsonData) {
@@ -210,5 +231,37 @@ class _ListCustomerScreenState extends State<ListCustomerScreen> {
     final directory = await getExternalStorageDirectory();
     final file = File('${directory?.path}/data_nasabah_dan_admin.csv');
     await file.writeAsString(csv);
+  }
+
+  showDeleteConfirmationDialog(String idUserToDelete) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Konfirmasi Hapus Data'),
+          content: const Text('Apakah Anda yakin ingin menghapus data ini?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Batal'),
+            ),
+            TextButton(
+              onPressed: () async {
+                bool success =
+                    await BaseRepository.deleteCustomer(idUserToDelete);
+                if (success) {
+                  Navigator.of(context).pop();
+                  fetchDataCustomerAll();
+                } else {
+                }
+              },
+              child: const Text('Hapus'),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
