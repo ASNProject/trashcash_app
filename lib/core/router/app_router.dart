@@ -10,6 +10,7 @@ import 'package:trashcash_app/screens/debit/list_debit_screen.dart';
 import 'package:trashcash_app/screens/list_customer/list_customer_screen.dart';
 import 'package:trashcash_app/screens/login/login_screen.dart';
 import 'package:trashcash_app/screens/register_user/register_user_screen.dart';
+import 'package:trashcash_app/screens/waste_type/list_type_waste_screen.dart';
 import 'package:trashcash_app/screens/waste_type/waste_type_screen.dart';
 
 @injectable
@@ -48,6 +49,13 @@ class AppRouter {
             path: AppRouteConstants.listCustomerRouteName,
             builder: (context, state) {
               return const ListCustomerScreen();
+            }
+        ),
+        GoRoute(
+            name: AppRouteConstants.listTypeWasteName,
+            path: AppRouteConstants.listTypeWasteName,
+            builder: (context, state) {
+              return const ListTypeWasteScreen();
             }
         ),
         GoRoute(

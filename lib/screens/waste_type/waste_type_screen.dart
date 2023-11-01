@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:trashcash_app/core/repository/base_repository.dart';
+import 'package:trashcash_app/core/router/app_route_constans.dart';
 
 class WasteTypeScreen extends StatefulWidget {
   const WasteTypeScreen({super.key});
@@ -120,14 +122,31 @@ class _WasteTypeScreenState extends State<WasteTypeScreen> {
                     const SizedBox(
                       height: 16,
                     ),
-                    Text(
-                      'Masukkan data',
-                      style: GoogleFonts.poppins(
-                        textStyle: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.black87),
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Masukkan data',
+                          style: GoogleFonts.poppins(
+                            textStyle: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.black87),
+                          ),
+                        ),
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            GoRouter.of(context)
+                                .pushNamed(AppRouteConstants.listTypeWasteName);
+                          },
+                          icon: const Icon(Icons.list),
+                          label: const Text('Lihat Data'),
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                                const Color(0xFF25A981)),
+                          ),
+                        )
+                      ],
                     ),
                     const SizedBox(
                       height: 8,

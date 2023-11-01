@@ -8,5 +8,6 @@ class AppRouteConstants {
   static const String creditRouteName ='/credit';
   static const String listCreditRouteName = '/list-credit';
   static const String listDebitRouteName = '/list-debit';
+  static const String listTypeWasteName = '/list-type-waste';
   static const String dashboardCustomerRouteName = '/dashboard-customer';
 }

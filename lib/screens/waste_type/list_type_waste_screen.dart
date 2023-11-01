@@ -5,22 +5,21 @@ import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:trashcash_app/core/repository/base_repository.dart';
 
-class ListCustomerScreen extends StatefulWidget {
-  const ListCustomerScreen({super.key});
+class ListTypeWasteScreen extends StatefulWidget {
+  const ListTypeWasteScreen({super.key});
 
   @override
-  State<ListCustomerScreen> createState() => _ListCustomerScreenState();
+  State<ListTypeWasteScreen> createState() => _ListTypeWasteScreenState();
 }
 
-class _ListCustomerScreenState extends State<ListCustomerScreen> {
+class _ListTypeWasteScreenState extends State<ListTypeWasteScreen> {
   Map? dataFromApi;
 
-  Future<void> fetchDataCustomerAll() async {
-    final result = await BaseRepository.fetchDataCustomerAll();
+  Future<void> fetchDataTypeWasteAll() async {
+    final result = await BaseRepository.fetchDataTypeWasteAll();
 
     setState(() {
       dataFromApi = result;
@@ -31,7 +30,7 @@ class _ListCustomerScreenState extends State<ListCustomerScreen> {
   void initState() {
     super.initState();
     initializeDateFormatting('en_US', null);
-    fetchDataCustomerAll();
+    fetchDataTypeWasteAll();
   }
 
   @override
@@ -50,10 +49,10 @@ class _ListCustomerScreenState extends State<ListCustomerScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Data Nasabah dan Admin',
+              'Data Jenis Sampah',
               style: GoogleFonts.poppins(
                 textStyle:
-                    const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
             ),
             const SizedBox(
@@ -65,7 +64,7 @@ class _ListCustomerScreenState extends State<ListCustomerScreen> {
                 Expanded(
                   child: GestureDetector(
                     onTap: () {
-                      fetchDataCustomerAll();
+                      fetchDataTypeWasteAll();
                     },
                     child: Row(
                       children: [
@@ -126,41 +125,32 @@ class _ListCustomerScreenState extends State<ListCustomerScreen> {
                     scrollDirection: Axis.horizontal,
                     child: DataTable(
                       columns: const [
-                        DataColumn(label: Text('ID Nasabah')),
-                        DataColumn(label: Text('Password')),
-                        DataColumn(label: Text('Nama')),
-                        DataColumn(label: Text('NIK')),
-                        DataColumn(label: Text('Alamat')),
-                        DataColumn(label: Text('Status')),
-                        DataColumn(label: Text('Registrasi')),
+                        DataColumn(label: Text('id')),
+                        DataColumn(label: Text('Jenis')),
+                        DataColumn(label: Text('Harga')),
                         DataColumn(label: Text('Aksi')),
                       ],
                       rows: jsonData != null
                           ? jsonData['data'].map<DataRow>((data) {
-                              return DataRow(cells: [
-                                DataCell(Text(data['id_user'] ?? '')),
-                                DataCell(Text(data['password'] ?? '')),
-                                DataCell(Text(data['name'] ?? '')),
-                                DataCell(Text(data['id_number'] ?? '')),
-                                DataCell(Text(data['address'] ?? '')),
-                                DataCell(Text(data['status']['status'] ?? '')),
-                                DataCell(Text(
-                                    formatDate(data['registration'] ?? ''))),
-                                DataCell(OutlinedButton.icon(
-                                  onPressed: () {
-                                    String idUserToDelete = data[
-                                        'id_user']; // Mendapatkan id_user yang akan dihapus
-                                    showDeleteConfirmationDialog(
-                                        idUserToDelete);
-                                  },
-                                  icon: const Icon(
-                                    Icons.delete,
-                                    color: Colors.red,
-                                  ),
-                                  label: const Text('Hapus'),
-                                ))
-                              ]);
-                            }).toList()
+                        return DataRow(cells: [
+                          DataCell(Text(data['id_type'] ?? '')),
+                          DataCell(Text(data['type'] ?? '')),
+                          DataCell(Text(data['price'] ?? '')),
+                          DataCell(OutlinedButton.icon(
+                            onPressed: () {
+                              String idUserToDelete = data[
+                              'id_type'];
+                              showDeleteConfirmationDialog(
+                                  idUserToDelete);
+                            },
+                            icon: const Icon(
+                              Icons.delete,
+                              color: Colors.red,
+                            ),
+                            label: const Text('Hapus'),
+                          ))
+                        ]);
+                      }).toList()
                           : [],
                     ),
                   ),
@@ -168,7 +158,7 @@ class _ListCustomerScreenState extends State<ListCustomerScreen> {
               ),
             ),
             Text(
-              '** Data nasabah dan admin untuk sementara tidak dapat diperbarui melalui aplikasi',
+              '** Data jenis sampah untuk sementara tidak dapat diperbarui melalui aplikasi',
               style: GoogleFonts.poppins(
                 textStyle: const TextStyle(
                   fontSize: 12,
@@ -182,15 +172,6 @@ class _ListCustomerScreenState extends State<ListCustomerScreen> {
     );
   }
 
-  String formatDate(String inputDate) {
-    final inputFormat = DateFormat("yyyy-MM-dd HH:mm:ss");
-    final outputFormat =
-        DateFormat("dd MMMM yyyy", 'id_ID'); // 'id_ID' untuk bahasa Indonesia
-
-    final date = inputFormat.parse(inputDate);
-    return outputFormat.format(date);
-  }
-
   String jsonToCsv(List<dynamic>? jsonData) {
     if (jsonData == null || jsonData.isEmpty) {
       return '';
@@ -199,25 +180,17 @@ class _ListCustomerScreenState extends State<ListCustomerScreen> {
 
     // Add CSV header (column names) based on your JSON data structure
     csvData.add([
-      'ID Nasabah',
-      'Password',
-      'Nama',
-      'NIK',
-      'Alamat',
-      'Status',
-      'Registrasi'
+      'id',
+      'Jenis',
+      'Harga',
     ]);
 
     // Add rows of data from JSON
     for (var data in jsonData) {
       csvData.add([
-        data['id_user'] ?? '',
-        data['password'] ?? '',
-        data['name'] ?? '',
-        data['id_number'] ?? '',
-        data['address'] ?? '',
-        data['status']['status'] ?? '',
-        data['registration'] ?? '',
+        data['id_type'] ?? '',
+        data['type'] ?? '',
+        data['price'] ?? '',
       ]);
     }
 
@@ -229,7 +202,7 @@ class _ListCustomerScreenState extends State<ListCustomerScreen> {
 
   Future<void> saveCsvToFile(String csv) async {
     final directory = await getExternalStorageDirectory();
-    final file = File('${directory?.path}/data_nasabah_dan_admin.csv');
+    final file = File('${directory?.path}/data_jenis_sampah.csv');
     await file.writeAsString(csv);
   }
 
@@ -250,10 +223,10 @@ class _ListCustomerScreenState extends State<ListCustomerScreen> {
             TextButton(
               onPressed: () async {
                 bool success =
-                    await BaseRepository.deleteCustomer(idUserToDelete);
+                await BaseRepository.deleteTypeWaste(idUserToDelete);
                 if (success) {
                   Navigator.of(context).pop();
-                  fetchDataCustomerAll();
+                  fetchDataTypeWasteAll();
                 } else {
                 }
               },
